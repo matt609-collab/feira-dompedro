@@ -3,1550 +3,763 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VozIA Studio - Text-to-Speech & Personas de IA</title>
+    <title>Chatbot de Persona com TTS</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#f0f5ff',
-                            100: '#e0ebff',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#0f172a',
-                        }
+                        darkBg: '#0e1013',
+                        surfaceCard: '#15181e',
+                        surfaceInput: '#1c2028',
+                        surfaceHover: '#252a35',
+                        borderDark: '#2a2f3d',
+                        accentBlue: '#3b82f6',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0b0f19;
-            color: #f3f4f6;
-        }
-
-        /* Glassmorphism Styles */
-        .glass-panel {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .glass-card {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .glass-input {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #f3f4f6;
-        }
-
-        .glass-input:focus {
-            border-color: #3b82f6;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
-
-        /* Custom Scrollbar */
+        /* Custom scrollbar matching dark aesthetic */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
+            background: #121418;
+            border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
+            background: #2a2f3d;
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.25);
+            background: #3f475a;
         }
-
-        /* Highlighting Word Effect */
-        .word-highlight {
-            background-color: rgba(59, 130, 246, 0.35);
-            color: #60a5fa;
-            border-radius: 4px;
-            padding: 0 2px;
-            transition: all 0.1s ease;
-            box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+        .speaking-pulse {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
-
-        /* Pulse Animation */
         @keyframes pulse-ring {
             0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 0.4; }
+            50% { transform: scale(1.03); opacity: 1; }
             100% { transform: scale(0.95); opacity: 0.8; }
-        }
-        .animate-pulse-ring {
-            animation: pulse-ring 2s infinite ease-in-out;
-        }
-
-        /* Wave Bars */
-        .wave-bar {
-            transition: height 0.15s ease;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+<body class="bg-darkBg text-gray-100 font-sans min-h-screen flex flex-col justify-between p-4 md:p-6 select-none max-w-4xl mx-auto">
 
-    <!-- Top Header Navigation -->
-    <header class="sticky top-0 z-40 glass-panel border-b border-gray-800/80 px-4 lg:px-8 py-3">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-            
-            <!-- Brand Logo -->
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i class="fa-solid font-bold fa-waveform text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-blue-400">
-                        VozIA <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Studio TTS</span>
-                    </h1>
-                    <p class="text-xs text-gray-400 hidden sm:block">Sintetizador de Voz e Personas com Inteligência Artificial</p>
-                </div>
-            </div>
-
-            <!-- Navigation Tabs -->
-            <nav class="flex items-center space-x-1 sm:space-x-2 bg-gray-900/80 p-1 rounded-xl border border-gray-800">
-                <button onclick="switchTab('tts')" id="nav-btn-tts" class="tab-nav-btn active flex items-center space-x-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-blue-600 text-white shadow-md">
-                    <i class="fa-solid fa-microphone-lines"></i>
-                    <span>Leitor TTS</span>
-                </button>
-                <button onclick="switchTab('chat')" id="nav-btn-chat" class="tab-nav-btn flex items-center space-x-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800/60 transition-all duration-200">
-                    <i class="fa-solid fa-comments"></i>
-                    <span>Chat Personas</span>
-                </button>
-                <button onclick="switchTab('personas')" id="nav-btn-personas" class="tab-nav-btn flex items-center space-x-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800/60 transition-all duration-200">
-                    <i class="fa-solid fa-users-gear"></i>
-                    <span class="hidden sm:inline">Gerenciar</span> Personas
-                </button>
-                <button onclick="switchTab('settings')" id="nav-btn-settings" class="tab-nav-btn flex items-center space-x-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800/60 transition-all duration-200">
-                    <i class="fa-solid fa-gear"></i>
-                    <span class="sr-only sm:not-sr-only">API</span>
-                </button>
-            </nav>
-
-            <!-- Global Status Badge -->
-            <div class="hidden lg:flex items-center space-x-3">
-                <div id="global-speech-badge" class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-gray-800/80 border border-gray-700/60 text-xs">
-                    <span id="global-status-dot" class="w-2 h-2 rounded-full bg-gray-500"></span>
-                    <span id="global-status-text" class="text-gray-400 font-medium">Inativo</span>
-                </div>
-            </div>
+    <!-- TOP HEADER -->
+    <header class="flex items-start justify-between w-full mb-6 pt-2">
+        <div>
+            <span class="text-[11px] font-bold tracking-widest text-gray-400 uppercase block mb-0.5">CHATBOT DE PERSONA</span>
+            <h1 id="headerPersonaName" class="text-3xl md:text-4xl font-bold font-display tracking-tight text-white">Alan Turing</h1>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button id="btnOpenPersonas" title="Gerenciar Personas" class="w-11 h-11 bg-surfaceCard hover:bg-surfaceHover border border-borderDark rounded-xl flex items-center justify-center text-gray-200 transition-all duration-200 active:scale-95 shadow-md">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+            </button>
+            <button id="btnOpenSettings" title="Configurações" class="w-11 h-11 bg-surfaceCard hover:bg-surfaceHover border border-borderDark rounded-xl flex items-center justify-center text-gray-200 transition-all duration-200 active:scale-95 shadow-md">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+            </button>
         </div>
     </header>
 
-    <!-- Main Content Body -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 space-y-6">
-
-        <!-- TAB 1: DIRETO TEXT-TO-SPEECH (TTS DIRECT) -->
-        <section id="tab-tts" class="tab-page space-y-6">
-
-            <!-- Title Header -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-gray-800">
-                <div>
-                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-volume-high text-blue-400"></i> Leitor de Texto em Voz Alta
-                    </h2>
-                    <p class="text-sm text-gray-400 mt-1">
-                        Sintetize qualquer texto em áudio usando as vozes do navegador com ajustes finos de pitch, tom e velocidade.
-                    </p>
-                </div>
-                
-                <!-- Quick Preset Text Buttons -->
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="loadSampleText('noticia')" class="px-3 py-1.5 rounded-lg text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition">
-                        📰 Notícia
-                    </button>
-                    <button onclick="loadSampleText('poema')" class="px-3 py-1.5 rounded-lg text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition">
-                        📜 Poema
-                    </button>
-                    <button onclick="loadSampleText('tech')" class="px-3 py-1.5 rounded-lg text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition">
-                        🤖 Tecnologia
-                    </button>
-                    <button onclick="clearTtsText()" class="px-3 py-1.5 rounded-lg text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition">
-                        <i class="fa-solid fa-trash-can"></i> Limpar
-                    </button>
-                </div>
+    <!-- CENTER STAGE (PERSONA DISPLAY) -->
+    <main class="flex-1 flex flex-col items-center justify-center my-2">
+        <div class="relative group">
+            <!-- Persona Avatar Image -->
+            <div id="avatarContainer" class="w-64 h-64 md:w-80 md:h-80 rounded-3xl overflow-hidden border border-borderDark shadow-2xl bg-surfaceCard transition-all duration-300">
+                <img id="personaAvatar" src="https://upload.wikimedia.org/wikipedia/commons/a/a1/Alan_Turing_Aged_16.jpg" alt="Persona Avatar" class="w-full h-full object-cover grayscale contrast-105 transition-transform duration-500 group-hover:scale-105" onerror="this.src='https://placehold.co/400x400/1e232d/ffffff?text=Persona'">
             </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                <!-- Left Column: Input Text Area -->
-                <div class="lg:col-span-2 flex flex-col space-y-4">
-                    <div class="glass-panel p-5 rounded-2xl border border-gray-800 flex-1 flex flex-col space-y-4">
-                        <div class="flex items-center justify-between">
-                            <label for="tts-input-text" class="text-sm font-semibold text-gray-200 flex items-center gap-2">
-                                <i class="fa-solid fa-align-left text-blue-400"></i> Texto para Leitura
-                            </label>
-                            <span id="char-count" class="text-xs text-gray-500">0 caracteres</span>
-                        </div>
-
-                        <!-- Textarea or Karaoke Highlight Container -->
-                        <div class="relative flex-1 min-h-[220px]">
-                            <textarea id="tts-input-text" oninput="updateCharCount()" 
-                                class="w-full h-full min-h-[220px] p-4 rounded-xl glass-input resize-y text-base leading-relaxed font-sans placeholder-gray-500 focus:ring-2 focus:ring-blue-500" 
-                                placeholder="Digite ou cole seu texto aqui para ser lido em voz alta..."></textarea>
-                            
-                            <!-- Display for text highlighting during speech -->
-                            <div id="tts-karaoke-display" class="hidden absolute inset-0 p-4 rounded-xl glass-input overflow-y-auto whitespace-pre-wrap text-base leading-relaxed bg-gray-950/90 border-blue-500/50">
-                                <!-- Dynamic highlighted text goes here -->
-                            </div>
-                        </div>
-
-                        <!-- Speech Controls Toolbar -->
-                        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-800">
-                            
-                            <div class="flex items-center space-x-2">
-                                <button id="btn-play" onclick="speakTtsText()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm flex items-center space-x-2 shadow-lg shadow-blue-600/30 transition transform active:scale-95">
-                                    <i class="fa-solid fa-play"></i>
-                                    <span>Reproduzir</span>
-                                </button>
-                                <button id="btn-pause" onclick="pauseTts()" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium text-sm flex items-center space-x-2 border border-gray-700 transition">
-                                    <i class="fa-solid fa-pause"></i>
-                                    <span>Pausar</span>
-                                </button>
-                                <button id="btn-resume" onclick="resumeTts()" class="hidden px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-medium text-sm flex items-center space-x-2 transition">
-                                    <i class="fa-solid fa-forward"></i>
-                                    <span>Retomar</span>
-                                </button>
-                                <button id="btn-stop" onclick="stopTts()" class="px-4 py-2.5 rounded-xl bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 font-medium text-sm flex items-center space-x-2 border border-rose-800/50 transition">
-                                    <i class="fa-solid fa-stop"></i>
-                                    <span>Parar</span>
-                                </button>
-                            </div>
-
-                            <div class="flex items-center space-x-2">
-                                <label class="inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="toggle-karaoke" class="sr-only peer" checked>
-                                    <div class="relative w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                                    <span class="ms-2 text-xs text-gray-400 font-medium">Realçar Texto</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Audio Visualizer Card -->
-                    <div class="glass-panel p-5 rounded-2xl border border-gray-800 flex flex-col space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                                <i class="fa-solid fa-chart-simple text-blue-400"></i> Visualizador Sonoro Dinâmico
-                            </span>
-                            <span id="visualizer-status" class="text-xs text-gray-500">Inativo</span>
-                        </div>
-                        <div class="relative h-20 bg-gray-950/80 rounded-xl overflow-hidden border border-gray-800/80 flex items-center justify-center p-2">
-                            <canvas id="audio-visualizer-canvas" class="w-full h-full block"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column: Voice Selection & Fine Tuning Controls -->
-                <div class="space-y-6">
-                    
-                    <div class="glass-panel p-5 rounded-2xl border border-gray-800 space-y-5">
-                        <h3 class="text-base font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-sliders text-indigo-400"></i> Ajustes da Voz
-                        </h3>
-
-                        <!-- Voice Selector -->
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between">
-                                <label for="voice-select" class="text-xs font-semibold text-gray-300">
-                                    Seletor de Voz
-                                </label>
-                                <span class="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">pt-BR destacado</span>
-                            </div>
-                            <select id="voice-select" class="w-full p-2.5 rounded-xl glass-input text-sm focus:ring-2 focus:ring-blue-500">
-                                <option value="">Carregando vozes do sistema...</option>
-                            </select>
-                        </div>
-
-                        <!-- Language Filter Toggle -->
-                        <div class="flex items-center justify-between text-xs text-gray-400 pt-1">
-                            <span>Filtrar vozes em Português</span>
-                            <input type="checkbox" id="filter-pt-voices" onchange="populateVoiceList()" checked class="rounded border-gray-700 bg-gray-900 text-blue-600 focus:ring-blue-500">
-                        </div>
-
-                        <!-- Speed Slider -->
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between">
-                                <label for="rate-slider" class="text-xs font-semibold text-gray-300">
-                                    Velocidade da Fala (Rate)
-                                </label>
-                                <span id="rate-value" class="text-xs font-mono text-blue-400">1.0x</span>
-                            </div>
-                            <input type="range" id="rate-slider" min="0.5" max="2.0" step="0.05" value="1.0" oninput="updateSliderValues()" class="w-full accent-blue-500 bg-gray-800 rounded-lg cursor-pointer">
-                            <div class="flex justify-between text-[10px] text-gray-500">
-                                <span>0.5x (Lento)</span>
-                                <span>1.0x (Normal)</span>
-                                <span>2.0x (Rápido)</span>
-                            </div>
-                        </div>
-
-                        <!-- Pitch Slider -->
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between">
-                                <label for="pitch-slider" class="text-xs font-semibold text-gray-300">
-                                    Tom da Voz (Pitch)
-                                </label>
-                                <span id="pitch-value" class="text-xs font-mono text-indigo-400">1.0</span>
-                            </div>
-                            <input type="range" id="pitch-slider" min="0.5" max="1.5" step="0.05" value="1.0" oninput="updateSliderValues()" class="w-full accent-indigo-500 bg-gray-800 rounded-lg cursor-pointer">
-                            <div class="flex justify-between text-[10px] text-gray-500">
-                                <span>Grave (0.5)</span>
-                                <span>Normal (1.0)</span>
-                                <span>Agudo (1.5)</span>
-                            </div>
-                        </div>
-
-                        <!-- Volume Slider -->
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between">
-                                <label for="volume-slider" class="text-xs font-semibold text-gray-300">
-                                    Volume
-                                </label>
-                                <span id="volume-value" class="text-xs font-mono text-emerald-400">100%</span>
-                            </div>
-                            <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="1.0" oninput="updateSliderValues()" class="w-full accent-emerald-500 bg-gray-800 rounded-lg cursor-pointer">
-                        </div>
-
-                        <!-- Test Voice Sample Button -->
-                        <button onclick="testCurrentVoice()" class="w-full py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-medium text-gray-300 border border-gray-700 transition flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-vial"></i>
-                            <span>Testar Configuração Atual</span>
-                        </button>
-                    </div>
-
-                </div>
-
+            <!-- Speaking Indicator Ring -->
+            <div id="speakingBadge" class="hidden absolute -bottom-3 left-1/2 -translate-x-1/2 bg-blue-600/90 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-lg border border-blue-400/30 flex items-center gap-1.5 backdrop-blur-md">
+                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                <span>Falando...</span>
             </div>
+        </div>
 
-        </section>
+        <!-- Persona Description / Tagline -->
+        <p id="personaBio" class="text-white text-center font-bold text-base md:text-lg mt-6 max-w-lg px-4 leading-relaxed">
+            Matemático, criptanalista e pai da computação moderna
+        </p>
 
-        <!-- TAB 2: CHAT COM PERSONAS IA (AUTOMATIC TTS) -->
-        <section id="tab-chat" class="tab-page hidden space-y-6">
-
-            <!-- Persona Switcher Header Bar -->
-            <div class="glass-panel p-4 rounded-2xl border border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center space-x-3 w-full md:w-auto">
-                    <span class="text-xs font-semibold uppercase text-gray-400 tracking-wider">Persona Ativa:</span>
-                    <div id="persona-tabs-container" class="flex items-center space-x-2 overflow-x-auto pb-1 max-w-full">
-                        <!-- Dynamic Persona Tabs Render Here -->
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-3 shrink-0">
-                    <label class="inline-flex items-center cursor-pointer text-xs text-gray-300">
-                        <input type="checkbox" id="toggle-auto-tts" class="sr-only peer" checked>
-                        <div class="relative w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                        <span class="ms-2 font-medium">Ler Respostas em Voz Alta (Auto TTS)</span>
-                    </label>
-                    <button onclick="clearCurrentChatHistory()" class="px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-rose-400 text-xs transition border border-gray-700" title="Limpar conversa atual">
-                        <i class="fa-solid fa-broom"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Main Chat Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-                <!-- Chat History Window (3 Cols) -->
-                <div class="lg:col-span-3 glass-panel rounded-2xl border border-gray-800 flex flex-col h-[620px] overflow-hidden">
-                    
-                    <!-- Active Persona Banner Header -->
-                    <div id="active-persona-banner" class="px-6 py-4 border-b border-gray-800/80 bg-gray-900/60 flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div id="banner-avatar" class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-xl shadow">
-                                🌟
-                            </div>
-                            <div>
-                                <h3 id="banner-name" class="font-bold text-white text-base">Sofia</h3>
-                                <p id="banner-desc" class="text-xs text-gray-400">Assistente Amigável e Entusiasta</p>
-                            </div>
-                        </div>
-                        <div class="text-right text-xs text-gray-400">
-                            <span id="banner-voice-name" class="px-2.5 py-1 rounded-full bg-gray-800 text-blue-400 border border-gray-700 font-mono text-[11px]">Voz Padrão</span>
-                        </div>
-                    </div>
-
-                    <!-- Chat Messages Log -->
-                    <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-4">
-                        <!-- Dynamic Chat Messages Inserted Here -->
-                    </div>
-
-                    <!-- Input Box Toolbar -->
-                    <div class="p-4 border-t border-gray-800 bg-gray-950/70 space-y-3">
-                        <form id="chat-form" onsubmit="handleSendChatMessage(event)" class="flex items-center space-x-2">
-                            <input type="text" id="chat-input-text" placeholder="Escreva sua pergunta ou mensagem aqui..." 
-                                class="flex-1 px-4 py-3 rounded-xl glass-input text-sm focus:ring-2 focus:ring-blue-500">
-                            
-                            <!-- Speech-to-Text Button (Microphone Input) -->
-                            <button type="button" id="btn-mic-input" onclick="toggleMicInput()" class="p-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition" title="Falar por microfone">
-                                <i class="fa-solid fa-microphone"></i>
-                            </button>
-
-                            <!-- Send Button -->
-                            <button type="submit" id="btn-send-chat" class="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm flex items-center space-x-2 shadow-lg shadow-blue-600/30 transition">
-                                <span>Enviar</span>
-                                <i class="fa-solid fa-paper-plane text-xs"></i>
-                            </button>
-                        </form>
-                        <div class="flex justify-between text-[11px] text-gray-500 px-1">
-                            <span>Dica: A IA responderá e ativará automaticamente o sintetizador de voz.</span>
-                            <span id="gemini-status-indicator" class="text-emerald-400 flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Gemini 2.5 Flash
-                            </span>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Right Info & Persona Specs Panel (1 Col) -->
-                <div class="space-y-6">
-                    <div class="glass-panel p-5 rounded-2xl border border-gray-800 space-y-4">
-                        <h4 class="text-sm font-bold text-white border-b border-gray-800 pb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-user-gear text-purple-400"></i> Configuração da Persona
-                        </h4>
-
-                        <div class="space-y-3 text-xs">
-                            <div>
-                                <span class="text-gray-400 font-medium">Instrução de Sistema (Prompt):</span>
-                                <p id="sidebar-system-prompt" class="mt-1 p-2.5 rounded-lg bg-gray-900/90 text-gray-300 border border-gray-800 text-[11px] leading-relaxed max-h-32 overflow-y-auto">
-                                    --
-                                </p>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="p-2 rounded-lg bg-gray-900 border border-gray-800">
-                                    <span class="text-gray-400 text-[10px]">Tom (Pitch):</span>
-                                    <p id="sidebar-pitch" class="font-bold text-indigo-400 text-sm">1.0</p>
-                                </div>
-                                <div class="p-2 rounded-lg bg-gray-900 border border-gray-800">
-                                    <span class="text-gray-400 text-[10px]">Velocidade:</span>
-                                    <p id="sidebar-rate" class="font-bold text-blue-400 text-sm">1.0x</p>
-                                </div>
-                            </div>
-
-                            <button onclick="openEditPersonaModalForActive()" class="w-full py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 font-medium transition text-xs flex items-center justify-center space-x-2">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                <span>Editar Esta Persona</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Voice Visualizer Box for Chat -->
-                    <div class="glass-panel p-4 rounded-2xl border border-gray-800 text-center space-y-2">
-                        <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Status da Voz da Persona</span>
-                        <div id="chat-persona-speaking-indicator" class="py-3 px-2 rounded-xl bg-gray-950 border border-gray-800 flex items-center justify-center space-x-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-gray-600"></span>
-                            <span class="text-xs text-gray-400">Aguardando mensagem...</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-        </section>
-
-        <!-- TAB 3: GERENCIADOR DE PERSONAS (PERSONA MANAGER) -->
-        <section id="tab-personas" class="tab-page hidden space-y-6">
-
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-gray-800">
-                <div>
-                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-masks-theater text-purple-400"></i> Galeria e Criação de Personas
-                    </h2>
-                    <p class="text-sm text-gray-400 mt-1">
-                        Configure personalidades com prompts do sistema, selecione vozes específicas e personalize parâmetros de síntese.
-                    </p>
-                </div>
-                <button onclick="openCreatePersonaModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-sm flex items-center space-x-2 shadow-lg shadow-purple-600/30 transition transform active:scale-95">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Criar Nova Persona</span>
-                </button>
-            </div>
-
-            <!-- Personas Cards Grid -->
-            <div id="personas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Dynamic Persona Cards rendered here -->
-            </div>
-
-        </section>
-
-        <!-- TAB 4: CONFIGURAÇÕES & API KEY -->
-        <section id="tab-settings" class="tab-page hidden space-y-6">
-
-            <div class="max-w-2xl mx-auto glass-panel p-6 rounded-2xl border border-gray-800 space-y-6">
-                <div>
-                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-key text-amber-400"></i> Configuração da API do Gemini
-                    </h2>
-                    <p class="text-sm text-gray-400 mt-1">
-                        Insira sua Chave de API do Gemini para permitir respostas dinâmicas e inteligentes na aba de Chat.
-                    </p>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="space-y-2">
-                        <label for="gemini-api-key" class="text-xs font-semibold text-gray-300">
-                            Chave de API Gemini (opcional / salva localmente)
-                        </label>
-                        <div class="relative">
-                            <input type="password" id="gemini-api-key" placeholder="AIzaSy..." 
-                                class="w-full px-4 py-3 rounded-xl glass-input text-sm font-mono focus:ring-2 focus:ring-amber-500 pr-10">
-                            <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-3 top-3.5 text-gray-400 hover:text-white">
-                                <i id="eye-icon" class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
-                        <p class="text-[11px] text-gray-500">
-                            A chave é armazenada apenas no seu próprio navegador via <code class="text-gray-300">localStorage</code>. Se nenhuma chave for informada, o sistema usará um modo de simulação interativo para testes.
-                        </p>
-                    </div>
-
-                    <div class="p-4 rounded-xl bg-blue-950/40 border border-blue-800/40 text-xs text-blue-200 space-y-2">
-                        <p class="font-semibold flex items-center gap-2">
-                            <i class="fa-solid fa-circle-info text-blue-400"></i> Como obter uma chave gratuita:
-                        </p>
-                        <ol class="list-decimal list-inside space-y-1 text-blue-300/80">
-                            <li>Acesse o <a href="https://aistudio.google.com/" target="_blank" class="underline font-medium hover:text-white">Google AI Studio</a></li>
-                            <li>Faça login com sua conta Google e clique em "Get API key"</li>
-                            <li>Copie a chave criada e cole no campo acima</li>
-                        </ol>
-                    </div>
-
-                    <button onclick="saveApiKeySettings()" class="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-medium text-sm transition shadow-lg shadow-amber-600/20">
-                        Salvar Configurações
-                    </button>
-                </div>
-            </div>
-
-        </section>
-
+        <!-- Status Bar below stage -->
+        <div class="w-full flex items-center justify-between text-xs text-gray-400 mt-8 mb-2 px-1 font-medium border-b border-borderDark/50 pb-2">
+            <span>Personalidade ao falar</span>
+            <span id="statusText" class="text-gray-400">Aguardando sua próxima pergunta.</span>
+        </div>
     </main>
 
-    <!-- Floating Bottom Player Status Bar -->
-    <div id="floating-player-bar" class="fixed bottom-0 inset-x-0 z-30 glass-panel border-t border-gray-800 px-4 py-3 transform translate-y-full transition-transform duration-300">
-        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-            <div class="flex items-center space-x-3 overflow-hidden">
-                <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0 animate-pulse">
-                    <i class="fa-solid fa-volume-high text-white text-xs"></i>
-                </div>
-                <div class="overflow-hidden">
-                    <p id="floating-speaker-title" class="text-xs font-bold text-white truncate">Reproduzindo Áudio...</p>
-                    <p id="floating-speaker-text" class="text-[11px] text-gray-400 truncate">Lendo texto sintetizado</p>
-                </div>
-            </div>
+    <!-- CHAT CONVERSATION CONTAINER -->
+    <section class="w-full bg-surfaceCard border border-borderDark rounded-2xl p-4 md:p-5 flex flex-col shadow-xl">
+        <!-- Chat Header -->
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-borderDark/60">
+            <span class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">CONVERSA</span>
+            <span id="messageCounter" class="text-xs text-gray-400 font-mono">0 mensagens</span>
+        </div>
 
-            <div class="flex items-center space-x-2 shrink-0">
-                <button onclick="pauseTts()" class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white text-xs border border-gray-700">
-                    <i class="fa-solid fa-pause"></i>
-                </button>
-                <button onclick="stopTts()" class="p-2 rounded-lg bg-rose-900/60 hover:bg-rose-800 text-rose-200 text-xs border border-rose-700">
-                    <i class="fa-solid fa-stop"></i>
+        <!-- Scrollable Messages Area -->
+        <div id="chatMessages" class="h-48 md:h-56 overflow-y-auto space-y-3 pr-2 mb-3">
+            <!-- Messages inserted dynamically here -->
+        </div>
+
+        <!-- Input Box Section -->
+        <div class="bg-surfaceInput border border-borderDark rounded-xl p-3 flex flex-col gap-2 focus-within:border-gray-500 transition-colors">
+            <textarea id="chatInput" rows="2" placeholder="Digite sua pergunta..." class="w-full bg-transparent text-sm text-gray-100 placeholder-gray-500 resize-none outline-none leading-relaxed"></textarea>
+            
+            <div class="flex items-center justify-between pt-1 border-t border-borderDark/40">
+                <span class="text-[11px] text-gray-500 font-medium hidden sm:inline">Enter envia · Shift + Enter quebra linha</span>
+                <span class="text-[10px] text-gray-500 font-medium sm:hidden">Enter para enviar</span>
+                <button id="btnSendMessage" title="Enviar Mensagem" class="w-8 h-8 bg-white hover:bg-gray-200 text-black rounded-full flex items-center justify-center transition-all duration-150 active:scale-90 ml-auto shadow-sm">
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Modal Form: Create / Edit Persona -->
-    <div id="persona-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-xl rounded-2xl border border-gray-800 p-6 space-y-5 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-3">
-                <h3 id="modal-title" class="text-lg font-bold text-white">Criar Nova Persona</h3>
-                <button onclick="closePersonaModal()" class="text-gray-400 hover:text-white">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
+    <!-- MODAL 1: SETTINGS (⚙) -->
+    <div id="modalSettings" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-surfaceCard border border-borderDark rounded-2xl w-full max-w-md p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button class="btnCloseModal absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="settings" class="w-5 h-5 text-blue-400"></i>
+                Configurações
+            </h2>
 
-            <form id="persona-form" onsubmit="handleSavePersona(event)" class="space-y-4">
-                <input type="hidden" id="persona-form-id">
-
-                <!-- Name & Icon -->
-                <div class="grid grid-cols-4 gap-3">
-                    <div class="col-span-1 space-y-1">
-                        <label for="form-persona-icon" class="text-xs font-semibold text-gray-300">Avatar Emoji</label>
-                        <input type="text" id="form-persona-icon" maxlength="2" value="🤖" required class="w-full text-center text-xl p-2.5 rounded-xl glass-input">
-                    </div>
-                    <div class="col-span-3 space-y-1">
-                        <label for="form-persona-name" class="text-xs font-semibold text-gray-300">Nome da Persona</label>
-                        <input type="text" id="form-persona-name" placeholder="Ex: Professor Quântico" required class="w-full p-2.5 rounded-xl glass-input text-sm">
-                    </div>
+            <div class="space-y-4">
+                <!-- Gemini API Key -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Chave de API (Gemini Key)</label>
+                    <input type="password" id="inputApiKey" placeholder="AIzaSy..." class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <p class="text-[11px] text-gray-400 mt-1">Se deixado em branco, o assistente opera no modo simulação/demonstração.</p>
                 </div>
 
-                <!-- Description -->
-                <div class="space-y-1">
-                    <label for="form-persona-desc" class="text-xs font-semibold text-gray-300">Breve Descrição</label>
-                    <input type="text" id="form-persona-desc" placeholder="Ex: Especialista em física teórica e curiosidades" class="w-full p-2.5 rounded-xl glass-input text-sm">
-                </div>
-
-                <!-- System Prompt -->
-                <div class="space-y-1">
-                    <label for="form-persona-prompt" class="text-xs font-semibold text-gray-300">Instruções de Sistema (Prompt da Personalidade)</label>
-                    <textarea id="form-persona-prompt" rows="3" required placeholder="Você é o Professor Quântico, fale de forma empolgada com vocabulário científico..." class="w-full p-2.5 rounded-xl glass-input text-xs leading-relaxed"></textarea>
-                </div>
-
-                <!-- Associated Voice -->
-                <div class="space-y-1">
-                    <label for="form-persona-voice" class="text-xs font-semibold text-gray-300">Voz Associada do Navegador</label>
-                    <select id="form-persona-voice" class="w-full p-2.5 rounded-xl glass-input text-xs">
-                        <!-- Dynamic options -->
+                <!-- AI Model Selector -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Modelo de IA</label>
+                    <select id="selectModel" class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Padrão)</option>
+                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Leve)</option>
+                        <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (Ultrarrápido)</option>
                     </select>
                 </div>
 
-                <!-- Sliders Pitch & Rate -->
-                <div class="grid grid-cols-2 gap-4 pt-2">
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-xs text-gray-300">
-                            <span>Tom (Pitch):</span>
-                            <span id="modal-pitch-val" class="font-mono text-indigo-400">1.0</span>
-                        </div>
-                        <input type="range" id="form-persona-pitch" min="0.5" max="1.5" step="0.05" value="1.0" oninput="document.getElementById('modal-pitch-val').textContent=this.value" class="w-full accent-indigo-500 bg-gray-800 rounded-lg">
+                <!-- TTS Voice Selector -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Voz do Sintetizador (TTS)</label>
+                    <select id="selectVoice" class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                        <option value="">Carregando vozes...</option>
+                    </select>
+                </div>
+
+                <!-- Voice Speed & Pitch -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Velocidade: <span id="lblSpeed">1.0</span>x</label>
+                        <input type="range" id="rangeSpeed" min="0.5" max="2" step="0.1" value="1.0" class="w-full accent-blue-500">
                     </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-xs text-gray-300">
-                            <span>Velocidade (Rate):</span>
-                            <span id="modal-rate-val" class="font-mono text-blue-400">1.0x</span>
-                        </div>
-                        <input type="range" id="form-persona-rate" min="0.5" max="2.0" step="0.05" value="1.0" oninput="document.getElementById('modal-rate-val').textContent=this.value+'x'" class="w-full accent-blue-500 bg-gray-800 rounded-lg">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Tom/Pitch: <span id="lblPitch">1.0</span></label>
+                        <input type="range" id="rangePitch" min="0.5" max="1.5" step="0.1" value="1.0" class="w-full accent-blue-500">
                     </div>
                 </div>
 
-                <!-- Greeting Message -->
-                <div class="space-y-1">
-                    <label for="form-persona-greeting" class="text-xs font-semibold text-gray-300">Mensagem de Boas-vindas Inicial</label>
-                    <input type="text" id="form-persona-greeting" placeholder="Olá! Como posso te ajudar hoje?" class="w-full p-2.5 rounded-xl glass-input text-sm">
+                <!-- Context Memory Settings -->
+                <div class="pt-2 border-t border-borderDark/60">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-gray-300 uppercase tracking-wider">Enviar Histórico (Memória)</span>
+                        <input type="checkbox" id="chkUseContext" checked class="w-4 h-4 accent-blue-500 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Limite de Mensagens no Contexto: <span id="lblMaxContext">10</span></label>
+                        <input type="range" id="rangeMaxContext" min="2" max="20" step="2" value="10" class="w-full accent-blue-500">
+                    </div>
                 </div>
+            </div>
 
-                <div class="flex justify-end space-x-3 pt-3 border-t border-gray-800">
-                    <button type="button" onclick="closePersonaModal()" class="px-4 py-2 rounded-xl bg-gray-800 text-gray-300 text-xs hover:bg-gray-700">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-purple-600 text-white text-xs font-medium hover:bg-purple-500">Salvar Persona</button>
-                </div>
-            </form>
+            <div class="mt-6 flex justify-end">
+                <button id="btnSaveSettings" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors shadow-md">
+                    Salvar Alterações
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Custom Toast Notification Container -->
-    <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+    <!-- MODAL 2: PERSONA MANAGER AND CREATOR (+) -->
+    <div id="modalPersonas" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-surfaceCard border border-borderDark rounded-2xl w-full max-w-2xl p-6 shadow-2xl relative max-h-[90vh] flex flex-col">
+            <button class="btnCloseModal absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="users" class="w-5 h-5 text-blue-400"></i>
+                Gerenciador de Personas
+            </h2>
 
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 overflow-y-auto pr-1">
+                <!-- Persona List Sidebar -->
+                <div class="space-y-2 border-r border-borderDark/60 pr-3">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Selecione uma Persona</span>
+                    <div id="personaList" class="space-y-1.5">
+                        <!-- Persona options inserted here -->
+                    </div>
+                </div>
+
+                <!-- Persona Edit Form -->
+                <div class="md:col-span-2 space-y-3 pl-1">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Editar Detalhes da Persona</span>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Nome da Persona</label>
+                        <input type="text" id="editPersonaName" class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Descrição / Subtítulo</label>
+                        <input type="text" id="editPersonaBio" class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">URL da Imagem de Perfil</label>
+                        <input type="text" id="editPersonaAvatar" class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Instrução de Sistema / Personalidade (Prompt)</label>
+                        <textarea id="editPersonaPrompt" rows="3" class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-1.5 text-xs text-white resize-none focus:outline-none focus:border-blue-500 leading-relaxed"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Mensagem de Boas-Vindas Inicial</label>
+                        <input type="text" id="editPersonaGreeting" class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+                    </div>
+
+                    <div class="pt-2 flex justify-between items-center">
+                        <button id="btnResetChat" class="text-xs text-red-400 hover:text-red-300 font-medium">Limpar histórico desta persona</button>
+                        <button id="btnSavePersona" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-4 py-2 rounded-lg transition-colors">
+                            Salvar Persona
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
     <script>
-        /* State Variables */
-        let voices = [];
-        let synth = window.speechSynthesis;
-        let currentUtterance = null;
-        let isSpeaking = false;
-        let activeTab = 'tts';
-
-        // Default Personas Data
-        const defaultPersonas = [
+        // --- Application State ---
+        const DEFAULT_PERSONAS = [
             {
-                id: 'sofia',
-                name: 'Sofia',
-                icon: '🌟',
-                desc: 'Assistente Amigável e Entusiasta',
-                prompt: 'Você é a Sofia, uma assistente virtual extremamente acolhedora, simpática, enérgica e prestativa. Responda de forma clara, motivadora e natural em Português.',
-                voiceURI: '',
-                pitch: 1.1,
-                rate: 1.05,
-                greeting: 'Olá! Sou a Sofia. Como posso deixar o seu dia incrível hoje?'
+                id: 'alan-turing',
+                name: 'Alan Turing',
+                bio: 'Matemático, criptanalista e pai da computação moderna',
+                avatar: 'https://upload.wikimedia.org/wikipedia/commons/a/a1/Alan_Turing_Aged_16.jpg',
+                prompt: 'Você é Alan Turing, famoso matemático e pai da ciência da computação. Responda de forma analítica, respeitosa e inteligente em português, discutindo tópicos de lógica, inteligência artificial, computação e criptografia.',
+                greeting: 'Olá. Como posso ajudá-lo? Posso conversar sobre matemática, lógica, computação e criptografia.'
             },
             {
-                id: 'socrates',
-                name: 'Sócrates',
-                icon: '🏛️',
-                desc: 'Sábio Filósofo Grego',
-                prompt: 'Você é o filósofo Sócrates. Responda às perguntas trazendo reflexões profundas, questionamentos maiêuticos e analogias filosóficas de forma pausada, respeitosa e sábia.',
-                voiceURI: '',
-                pitch: 0.8,
-                rate: 0.9,
-                greeting: 'Saudações, meu jovem amigo. Que busca pela verdade traz a mim hoje?'
+                id: 'margaret-hamilton',
+                name: 'Margaret Hamilton',
+                bio: 'diretora da Divisão de Engenharia de Software do Laboratório de Instrumentação do MIT, responsável pelo código do computador de bordo do Programa Apollo.',
+                avatar: 'https://en.wikipedia.org/wiki/Margaret_Hamilton_(software_engineer)#/media/File:Margaret_Hamilton_1995.jpg',
+                prompt: 'Você é Margaret Hamilton, diretora da Divisão de Engenharia de Software do Laboratório de Instrumentação do MIT, responsável pelo código do computador de bordo do Programa Apollo. Você inventou o próprio conceito de "Engenharia de Software" para dar à disciplina o respeito da engenharia tradicional. Determinada, resiliente e absurdamente detalhista, você é obcecada pela prevenção de erros, assincronia e arquiteturas de sistema capazes de lidar com cenários críticos sob extrema pressão. Diretrizes de Comportamento e Tom: Foco Prático e Técnico: Aborde qualquer problema do ponto de vista do "pior cenário possível". Priorize a tolerância a falhas, testes exaustivos e clareza de requisitos. Didática e Firme: Responda com entusiasmo focado em resolução de problemas reais. Evite teorias desconectadas da aplicação prática. Linguagem: Estruturada, direta, profissional e pontuada por termos de sistemas (overhead, interrupções de prioridade, verificação contínua). Marcadores de Estilo: Use exemplos de sistemas assíncronos e testes rigorosos para ilustrar como evitar o colapso de um projeto. Mantenha uma atitude calmaramente confiante, típica de quem precisou garantir o pouso do homem na Lua sem falhas de software',
+                greeting: 'Olá! Como posso te ajudar hoje?'
             },
-            {
-                id: 'nexus',
-                name: 'Nexus-9',
-                icon: '🤖',
-                desc: 'IA Robótica Quântica',
-                prompt: 'Você é Nexus-9, uma inteligência artificial quântica do ano 2154. Fale com tom levemente técnico, preciso, futurista e fascinado pelas capacidades da tecnologia.',
-                voiceURI: '',
-                pitch: 0.7,
-                rate: 1.15,
-                greeting: 'Sistemas online. Conexão quântica estabelecida. Qual é sua instrução, humano?'
-            },
-            {
-                id: 'lucas',
-                name: 'Prof. Lucas',
-                icon: '👨‍🏫',
-                desc: 'Professor Apaixonado por Ensinar',
-                prompt: 'Você é o Professor Lucas. Explique qualquer assunto com analogias do dia a dia, muita didática, entusiasmo e incentivo à aprendizagem contínua.',
-                voiceURI: '',
-                pitch: 1.0,
-                rate: 1.0,
-                greeting: 'Fala pessoal! Pronto para aprender algo fantástico hoje?'
-            }
         ];
 
-        let personas = JSON.parse(localStorage.getItem('vozia_personas')) || defaultPersonas;
-        let activePersonaId = localStorage.getItem('vozia_active_persona') || 'sofia';
-        let chatHistories = JSON.parse(localStorage.getItem('vozia_chats')) || {};
-
-        function initVoices() {
-            if (!('speechSynthesis' in window)) {
-                showToast('Seu navegador não suporta a Web Speech API de sintetização de voz.', 'error');
-                return;
+        let state = {
+            personas: JSON.parse(localStorage.getItem('voz_personas')) || DEFAULT_PERSONAS,
+            activePersonaId: localStorage.getItem('voz_active_persona_id') || 'alan-turing',
+            messages: JSON.parse(localStorage.getItem('voz_messages')) || {},
+            settings: JSON.parse(localStorage.getItem('voz_settings')) || {
+                apiKey: '',
+                model: 'gemini-2.5-flash',
+                voiceName: '',
+                speed: 1.0,
+                pitch: 1.0,
+                useContext: true,
+                maxContext: 10
             }
+        };
 
-            function loadVoices() {
-                voices = synth.getVoices();
-                populateVoiceList();
-            }
+        let voices = [];
+        let synth = window.speechSynthesis;
+        let isSpeaking = false;
 
+        // --- DOM Elements ---
+        const elements = {
+            headerPersonaName: document.getElementById('headerPersonaName'),
+            personaAvatar: document.getElementById('personaAvatar'),
+            personaBio: document.getElementById('personaBio'),
+            statusText: document.getElementById('statusText'),
+            speakingBadge: document.getElementById('speakingBadge'),
+            chatMessages: document.getElementById('chatMessages'),
+            messageCounter: document.getElementById('messageCounter'),
+            chatInput: document.getElementById('chatInput'),
+            btnSendMessage: document.getElementById('btnSendMessage'),
+            
+            // Settings Modal
+            modalSettings: document.getElementById('modalSettings'),
+            btnOpenSettings: document.getElementById('btnOpenSettings'),
+            inputApiKey: document.getElementById('inputApiKey'),
+            selectModel: document.getElementById('selectModel'),
+            selectVoice: document.getElementById('selectVoice'),
+            rangeSpeed: document.getElementById('rangeSpeed'),
+            rangePitch: document.getElementById('rangePitch'),
+            lblSpeed: document.getElementById('lblSpeed'),
+            lblPitch: document.getElementById('lblPitch'),
+            chkUseContext: document.getElementById('chkUseContext'),
+            rangeMaxContext: document.getElementById('rangeMaxContext'),
+            lblMaxContext: document.getElementById('lblMaxContext'),
+            btnSaveSettings: document.getElementById('btnSaveSettings'),
+
+            // Personas Modal
+            modalPersonas: document.getElementById('modalPersonas'),
+            btnOpenPersonas: document.getElementById('btnOpenPersonas'),
+            personaList: document.getElementById('personaList'),
+            editPersonaName: document.getElementById('editPersonaName'),
+            editPersonaBio: document.getElementById('editPersonaBio'),
+            editPersonaAvatar: document.getElementById('editPersonaAvatar'),
+            editPersonaPrompt: document.getElementById('editPersonaPrompt'),
+            editPersonaGreeting: document.getElementById('editPersonaGreeting'),
+            btnSavePersona: document.getElementById('btnSavePersona'),
+            btnResetChat: document.getElementById('btnResetChat')
+        };
+
+        // --- Initialization ---
+        function init() {
+            lucide.createIcons();
             loadVoices();
             if (speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = loadVoices;
             }
-        }
 
-        function populateVoiceList() {
-            const voiceSelect = document.getElementById('voice-select');
-            const modalVoiceSelect = document.getElementById('form-persona-voice');
-            const filterPt = document.getElementById('filter-pt-voices').checked;
-
-            if (!voiceSelect) return;
-
-            voiceSelect.innerHTML = '';
-            if (modalVoiceSelect) modalVoiceSelect.innerHTML = '';
-
-            let filtered = voices;
-            if (filterPt) {
-                filtered = voices.filter(v => v.lang.startsWith('pt'));
-                if (filtered.length === 0) filtered = voices; // fallback if no pt voices found
+            // Ensure messages store exists for active persona
+            if (!state.messages[state.activePersonaId]) {
+                const persona = getActivePersona();
+                state.messages[state.activePersonaId] = [{
+                    role: 'model',
+                    text: persona.greeting,
+                    time: getCurrentTime()
+                }];
+                saveState();
             }
 
-            filtered.forEach((voice) => {
-                const option = document.createElement('option');
-                option.value = voice.voiceURI;
-                const isPt = voice.lang.startsWith('pt') ? ' [PT]' : '';
-                option.textContent = `${voice.name} (${voice.lang})${isPt}`;
-                if (voice.default) option.textContent += ' — Padrão';
-                
-                voiceSelect.appendChild(option.cloneNode(true));
-                if (modalVoiceSelect) modalVoiceSelect.appendChild(option);
+            updateUI();
+            setupEventListeners();
+        }
+
+        function getActivePersona() {
+            return state.personas.find(p => p.id === state.activePersonaId) || state.personas[0];
+        }
+
+        function saveState() {
+            localStorage.setItem('voz_personas', JSON.stringify(state.personas));
+            localStorage.setItem('voz_active_persona_id', state.activePersonaId);
+            localStorage.setItem('voz_messages', JSON.stringify(state.messages));
+            localStorage.setItem('voz_settings', JSON.stringify(state.settings));
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        }
+
+        // --- Speech Synthesis Functions ---
+        function loadVoices() {
+            voices = synth.getVoices();
+            elements.selectVoice.innerHTML = '';
+            
+            // Prefer Portuguese voices first, then fallbacks
+            voices.sort((a, b) => {
+                const aPt = a.lang.startsWith('pt');
+                const bPt = b.lang.startsWith('pt');
+                if (aPt && !bPt) return -1;
+                if (!aPt && bPt) return 1;
+                return a.name.localeCompare(b.name);
             });
 
-            // Try selecting a Portuguese voice by default
-            const ptVoice = voices.find(v => v.lang.startsWith('pt-BR') || v.lang.startsWith('pt'));
-            if (ptVoice && !voiceSelect.value) {
-                voiceSelect.value = ptVoice.voiceURI;
-            }
+            voices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = voice.name;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                if (voice.name === state.settings.voiceName || (!state.settings.voiceName && index === 0)) {
+                    option.selected = true;
+                }
+                elements.selectVoice.appendChild(option);
+            });
         }
 
-        function speakTtsText(overrideText = null, customParams = null) {
-            const text = overrideText || document.getElementById('tts-input-text').value.trim();
-            if (!text) {
-                showToast('Por favor, digite algum texto para ser lido!', 'warning');
-                return;
-            }
+        function speakText(text) {
+            if (!text || !('speechSynthesis' in window)) return;
 
-            synth.cancel(); // Stop any active speech
+            synth.cancel(); // Stop any current audio
 
             const utterance = new SpeechSynthesisUtterance(text);
-            
-            // Get Voice parameters
-            let selectedVoiceURI, rate, pitch, volume;
+            utterance.rate = parseFloat(state.settings.speed);
+            utterance.pitch = parseFloat(state.settings.pitch);
 
-            if (customParams) {
-                selectedVoiceURI = customParams.voiceURI;
-                rate = customParams.rate;
-                pitch = customParams.pitch;
-                volume = customParams.volume || 1.0;
-            } else {
-                selectedVoiceURI = document.getElementById('voice-select').value;
-                rate = parseFloat(document.getElementById('rate-slider').value);
-                pitch = parseFloat(document.getElementById('pitch-slider').value);
-                volume = parseFloat(document.getElementById('volume-slider').value);
-            }
-
-            if (selectedVoiceURI) {
-                const voiceObj = voices.find(v => v.voiceURI === selectedVoiceURI);
-                if (voiceObj) utterance.voice = voiceObj;
-            }
-
-            utterance.rate = rate || 1.0;
-            utterance.pitch = pitch || 1.0;
-            utterance.volume = volume || 1.0;
-
-            // Setup Karaoke / Word highlighting if on TTS tab
-            const enableKaraoke = document.getElementById('toggle-karaoke')?.checked;
-            const karaokeContainer = document.getElementById('tts-karaoke-display');
-            
-            if (activeTab === 'tts' && enableKaraoke && !overrideText) {
-                setupKaraokeDisplay(text, karaokeContainer);
+            if (state.settings.voiceName) {
+                const selectedVoice = voices.find(v => v.name === state.settings.voiceName);
+                if (selectedVoice) utterance.voice = selectedVoice;
             }
 
             utterance.onstart = () => {
                 isSpeaking = true;
-                updateSpeechStatusUI('speaking');
-                if (activeTab === 'tts' && enableKaraoke && !overrideText && karaokeContainer) {
-                    karaokeContainer.classList.remove('hidden');
-                }
-            };
-
-            utterance.onboundary = (event) => {
-                if (event.name === 'word' && activeTab === 'tts' && enableKaraoke && !overrideText) {
-                    highlightWordAtIndex(event.charIndex, event.charLength || 5);
-                }
+                elements.speakingBadge.classList.remove('hidden');
+                elements.statusText.textContent = "Falando...";
             };
 
             utterance.onend = () => {
                 isSpeaking = false;
-                updateSpeechStatusUI('idle');
-                if (karaokeContainer) karaokeContainer.classList.add('hidden');
+                elements.speakingBadge.classList.add('hidden');
+                elements.statusText.textContent = "Aguardando sua próxima pergunta.";
             };
 
-            utterance.onerror = (e) => {
-                console.error('TTS Error:', e);
+            utterance.onerror = () => {
                 isSpeaking = false;
-                updateSpeechStatusUI('idle');
+                elements.speakingBadge.classList.add('hidden');
+                elements.statusText.textContent = "Aguardando sua próxima pergunta.";
             };
 
-            currentUtterance = utterance;
             synth.speak(utterance);
         }
 
-        function setupKaraokeDisplay(text, container) {
-            if (!container) return;
-            container.innerHTML = text.replace(/(\S+)/g, '<span class="karaoke-word">$1</span>');
-        }
+        // --- UI Rendering ---
+        function updateUI() {
+            const activePersona = getActivePersona();
 
-        function highlightWordAtIndex(charIndex, length) {
-            const container = document.getElementById('tts-karaoke-display');
-            const originalText = document.getElementById('tts-input-text').value;
-            if (!container || !originalText) return;
+            // Header & Stage
+            elements.headerPersonaName.textContent = activePersona.name;
+            elements.personaAvatar.src = activePersona.avatar;
+            elements.personaBio.textContent = activePersona.bio;
 
-            const before = originalText.substring(0, charIndex);
-            const target = originalText.substring(charIndex, charIndex + length);
-            const after = originalText.substring(charIndex + length);
-
-            container.innerHTML = `${escapeHtml(before)}<span class="word-highlight">${escapeHtml(target)}</span>${escapeHtml(after)}`;
-        }
-
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        function pauseTts() {
-            if (synth.speaking && !synth.paused) {
-                synth.pause();
-                updateSpeechStatusUI('paused');
-            }
-        }
-
-        function resumeTts() {
-            if (synth.paused) {
-                synth.resume();
-                updateSpeechStatusUI('speaking');
-            }
-        }
-
-        function stopTts() {
-            if (synth.speaking || synth.paused) {
-                synth.cancel();
-                isSpeaking = false;
-                updateSpeechStatusUI('idle');
-                const karaokeContainer = document.getElementById('tts-karaoke-display');
-                if (karaokeContainer) karaokeContainer.classList.add('hidden');
-            }
-        }
-
-        function updateSliderValues() {
-            document.getElementById('rate-value').textContent = parseFloat(document.getElementById('rate-slider').value).toFixed(2) + 'x';
-            document.getElementById('pitch-value').textContent = parseFloat(document.getElementById('pitch-slider').value).toFixed(2);
-            document.getElementById('volume-value').textContent = Math.round(parseFloat(document.getElementById('volume-slider').value) * 100) + '%';
-        }
-
-        function updateSpeechStatusUI(status) {
-            const globalDot = document.getElementById('global-status-dot');
-            const globalText = document.getElementById('global-status-text');
-            const visualizerStatus = document.getElementById('visualizer-status');
-            const btnPause = document.getElementById('btn-pause');
-            const btnResume = document.getElementById('btn-resume');
-            const floatingBar = document.getElementById('floating-player-bar');
-            const chatStatusBox = document.getElementById('chat-persona-speaking-indicator');
-
-            if (status === 'speaking') {
-                globalDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
-                globalText.textContent = 'Falando';
-                globalText.className = 'text-emerald-400 font-medium';
-                if (visualizerStatus) visualizerStatus.textContent = '🔊 Áudio em Reprodução';
-
-                if (btnPause) btnPause.classList.remove('hidden');
-                if (btnResume) btnResume.classList.add('hidden');
-                if (floatingBar) floatingBar.classList.remove('translate-y-full');
-
-                if (chatStatusBox) {
-                    chatStatusBox.innerHTML = `
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span class="text-xs text-emerald-400 font-semibold">Falando agora...</span>
-                    `;
-                }
-            } else if (status === 'paused') {
-                globalDot.className = 'w-2 h-2 rounded-full bg-amber-400';
-                globalText.textContent = 'Pausado';
-                globalText.className = 'text-amber-400 font-medium';
-                if (visualizerStatus) visualizerStatus.textContent = '⏸️ Reprodução Pausada';
-
-                if (btnPause) btnPause.classList.add('hidden');
-                if (btnResume) btnResume.classList.remove('hidden');
-
-                if (chatStatusBox) {
-                    chatStatusBox.innerHTML = `
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-                        <span class="text-xs text-amber-400 font-semibold">Áudio Pausado</span>
-                    `;
-                }
-            } else {
-                globalDot.className = 'w-2 h-2 rounded-full bg-gray-500';
-                globalText.textContent = 'Inativo';
-                globalText.className = 'text-gray-400 font-medium';
-                if (visualizerStatus) visualizerStatus.textContent = 'Inativo';
-
-                if (btnPause) btnPause.classList.remove('hidden');
-                if (btnResume) btnResume.classList.add('hidden');
-                if (floatingBar) floatingBar.classList.add('translate-y-full');
-
-                if (chatStatusBox) {
-                    chatStatusBox.innerHTML = `
-                        <span class="w-2.5 h-2.5 rounded-full bg-gray-600"></span>
-                        <span class="text-xs text-gray-400">Aguardando mensagem...</span>
-                    `;
-                }
-            }
-        }
-
-        // Canvas Waveform Visualizer Logic
-        function setupVisualizer() {
-            const canvas = document.getElementById('audio-visualizer-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-
-            function resize() {
-                canvas.width = canvas.parentElement.clientWidth;
-                canvas.height = canvas.parentElement.clientHeight;
-            }
-            resize();
-            window.addEventListener('resize', resize);
-
-            let step = 0;
-            function render() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                const width = canvas.width;
-                const height = canvas.height;
-                const bars = 32;
-                const barWidth = width / bars - 4;
-
-                for (let i = 0; i < bars; i++) {
-                    let barHeight = 4;
-                    if (synth.speaking && !synth.paused) {
-                        // Generate simulated reactive audio frequency wave
-                        barHeight = Math.sin(step + i * 0.3) * 25 + Math.cos(step * 1.5 + i * 0.2) * 15 + 30;
-                        barHeight = Math.max(6, barHeight);
-                    }
-
-                    const x = i * (barWidth + 4) + 2;
-                    const y = (height - barHeight) / 2;
-
-                    const gradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
-                    gradient.addColorStop(0, '#60a5fa');
-                    gradient.addColorStop(1, '#3b82f6');
-
-                    ctx.fillStyle = synth.speaking ? gradient : 'rgba(255, 255, 255, 0.1)';
-                    ctx.beginPath();
-                    ctx.roundRect(x, y, barWidth, barHeight, 3);
-                    ctx.fill();
-                }
-
-                step += 0.1;
-                requestAnimationFrame(render);
-            }
-            render();
-        }
-
-        async function handleSendChatMessage(event) {
-            event.preventDefault();
-            const inputEl = document.getElementById('chat-input-text');
-            const message = inputEl.value.trim();
-            if (!message) return;
-
-            inputEl.value = '';
+            // Chat Messages Render
+            const chatLog = state.messages[state.activePersonaId] || [];
+            elements.messageCounter.textContent = `${chatLog.length} ${chatLog.length === 1 ? 'mensagem' : 'mensagens'}`;
             
-            // Render user message
-            addChatMessage(activePersonaId, 'user', message);
+            elements.chatMessages.innerHTML = '';
+            chatLog.forEach((msg, idx) => {
+                const isUser = msg.role === 'user';
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `flex flex-col ${isUser ? 'items-end' : 'items-start'} mb-2.5`;
 
-            const activePersona = personas.find(p => p.id === activePersonaId) || personas[0];
-            const apiKey = localStorage.getItem('vozia_gemini_key') || '';
+                const bubble = document.createElement('div');
+                bubble.className = `max-w-[85%] rounded-xl px-3.5 py-2.5 text-xs md:text-sm leading-relaxed ${
+                    isUser 
+                        ? 'bg-surfaceInput border border-borderDark text-gray-100 rounded-br-none' 
+                        : 'bg-surfaceInput/90 border border-borderDark text-gray-200 rounded-bl-none shadow-sm'
+                }`;
+                bubble.textContent = msg.text;
 
-            // Show typing indicator
-            const typingId = addTypingIndicator(activePersona);
+                const subInfo = document.createElement('div');
+                subInfo.className = 'flex items-center gap-2 mt-1 text-[10px] text-gray-500 font-mono px-1';
+                subInfo.innerHTML = `<span>${msg.time}</span>`;
 
-            let aiResponseText = '';
+                if (!isUser) {
+                    const btnListen = document.createElement('button');
+                    btnListen.className = 'hover:text-blue-400 flex items-center gap-0.5 font-sans font-medium transition-colors cursor-pointer';
+                    btnListen.innerHTML = `<i data-lucide="volume-2" class="w-3 h-3"></i> Ouvir`;
+                    btnListen.onclick = () => speakText(msg.text);
+                    subInfo.appendChild(btnListen);
+                }
+
+                msgDiv.appendChild(bubble);
+                msgDiv.appendChild(subInfo);
+                elements.chatMessages.appendChild(msgDiv);
+            });
+
+            // Auto Scroll
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+
+            // Re-render Lucide icons inside messages
+            lucide.createIcons();
+        }
+
+        // --- Gemini API Call ---
+        async function fetchAIResponse(userPrompt) {
+            const activePersona = getActivePersona();
+            elements.statusText.textContent = "Pensando e gerando resposta...";
+
+            // Fallback / Demo Mode if no API Key provided
+            if (!state.settings.apiKey.trim()) {
+                await new Promise(r => setTimeout(r, 800)); // Simulate delay
+                const mockResponse = `[Modo Simulação] Olá! Sou ${activePersona.name}. Como você não configurou uma chave de API nas configurações (⚙), estou utilizando respostas gravadas para demonstração. Sua mensagem foi: "${userPrompt}"`;
+                return mockResponse;
+            }
 
             try {
-                if (apiKey) {
-                    aiResponseText = await callGeminiAPI(message, activePersona, apiKey);
-                } else {
-                    // Simulated Persona AI response if no API Key provided
-                    await new Promise(r => setTimeout(r, 1200));
-                    aiResponseText = generateSimulatedResponse(message, activePersona);
+                const model = state.settings.model || 'gemini-2.5-flash';
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${state.settings.apiKey.trim()}`;
+
+                // Construct conversation history payload
+                let contents = [];
+                if (state.settings.useContext) {
+                    const history = state.messages[state.activePersonaId] || [];
+                    const maxMsgs = state.settings.maxContext || 10;
+                    const recentMsgs = history.slice(-maxMsgs);
+
+                    recentMsgs.forEach(m => {
+                        contents.push({
+                            role: m.role === 'user' ? 'user' : 'model',
+                            parts: [{ text: m.text }]
+                        });
+                    });
                 }
+
+                // Push current prompt
+                contents.push({
+                    role: 'user',
+                    parts: [{ text: userPrompt }]
+                });
+
+                const payload = {
+                    contents: contents,
+                    systemInstruction: {
+                        parts: [{ text: activePersona.prompt }]
+                    },
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 250
+                    }
+                };
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorJson = await response.json().catch(() => ({}));
+                    throw new Error(errorJson?.error?.message || `Erro HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!aiReply) {
+                    throw new Error("Formato de resposta inesperado do modelo.");
+                }
+
+                return aiReply;
+
             } catch (err) {
-                console.error('Gemini error:', err);
-                aiResponseText = `Desculpe, ocorreu um erro na comunicação com a IA. (${err.message}). Verifique sua chave de API nas configurações.`;
-            }
-
-            removeMessage(typingId);
-            addChatMessage(activePersonaId, 'ai', aiResponseText);
-
-            // Trigger Auto TTS if enabled
-            const autoTts = document.getElementById('toggle-auto-tts').checked;
-            if (autoTts) {
-                speakPersonaMessage(aiResponseText, activePersona);
+                console.error("Gemini API Error:", err);
+                return `Não foi possível gerar a resposta. Erro: ${err.message}. Verifique sua chave de API ou tente o modelo Gemini 1.5 Flash.`;
             }
         }
 
-        async function callGeminiAPI(userPrompt, persona, apiKey) {
-            const history = chatHistories[persona.id] || [];
-            
-            // Format content history for Gemini
-            const contents = history.map(msg => ({
-                role: msg.role === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.text }]
-            }));
+        // --- Message Handling ---
+        async function handleSendMessage() {
+            const text = elements.chatInput.value.trim();
+            if (!text) return;
 
-            // Add current message
-            contents.push({
+            // Clear input
+            elements.chatInput.value = '';
+
+            // Add user message
+            if (!state.messages[state.activePersonaId]) {
+                state.messages[state.activePersonaId] = [];
+            }
+
+            state.messages[state.activePersonaId].push({
                 role: 'user',
-                parts: [{ text: userPrompt }]
-            });
-
-            const payload = {
-                contents: contents,
-                systemInstruction: {
-                    parts: [{ text: persona.prompt }]
-                }
-            };
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
-
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.error?.message || 'Erro de resposta da API');
-            }
-
-            const data = await res.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Não consegui obter uma resposta válida.';
-        }
-
-        function generateSimulatedResponse(userPrompt, persona) {
-            const replies = {
-                sofia: [
-                    `Com certeza! Fico muito feliz em conversar com você. Sobre "${userPrompt}", acho uma excelente pergunta! O segredo é manter o otimismo e explorar novas possibilidades.`,
-                    `Incrível! Adorei esse tema. Tenho certeza que juntos podemos encontrar as melhores respostas. O que mais você gostaria de saber?`
-                ],
-                socrates: [
-                    `Hum... Uma questão intrigante. Antes de responder sobre "${userPrompt}", devemos nos perguntar: qual é a essência do que estamos buscando compreender?`,
-                    `Só sei que nada sei, meu jovem. Contudo, ao refletirmos juntos sobre isso, aproximamo-nos um passo mais da sabedoria.`
-                ],
-                nexus: [
-                    `Processando entrada de dados: "${userPrompt}". Análise quântica concluída com 99.8% de precisão. O futuro da tecnologia sugere um avanço exponencial nessa área.`,
-                    `Alerta de inovação! Os registros do século 22 indicam que este conceito revolucionou a forma como interagimos com sistemas neurais.`
-                ],
-                lucas: [
-                    `Ótima pergunta! Vamos pensar nisso como uma receita de bolo: para entender "${userPrompt}", precisamos primeiro separar os ingredientes principais!`,
-                    `Exatamente! É assim que a ciência avança. Quando explicamos isso com exemplos práticos, tudo fica muito mais simples de aprender.`
-                ]
-            };
-
-            const personaReplies = replies[persona.id] || replies.sofia;
-            return personaReplies[Math.floor(Math.random() * personaReplies.length)];
-        }
-
-        function speakPersonaMessage(text, persona) {
-            document.getElementById('floating-speaker-title').textContent = `${persona.icon} ${persona.name}`;
-            document.getElementById('floating-speaker-text').textContent = text;
-
-            speakTtsText(text, {
-                voiceURI: persona.voiceURI,
-                pitch: persona.pitch,
-                rate: persona.rate,
-                volume: 1.0
-            });
-        }
-
-        function renderPersonaTabs() {
-            const container = document.getElementById('persona-tabs-container');
-            if (!container) return;
-            container.innerHTML = '';
-
-            personas.forEach(p => {
-                const isActive = p.id === activePersonaId;
-                const btn = document.createElement('button');
-                btn.onclick = () => selectActivePersona(p.id);
-                btn.className = `flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition shadow-sm border ${
-                    isActive 
-                        ? 'bg-blue-600 text-white border-blue-500 shadow-blue-600/20' 
-                        : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-700 border-gray-700'
-                }`;
-                btn.innerHTML = `<span>${p.icon}</span> <span>${p.name}</span>`;
-                container.appendChild(btn);
-            });
-
-            updateActivePersonaBanner();
-        }
-
-        function selectActivePersona(personaId) {
-            activePersonaId = personaId;
-            localStorage.setItem('vozia_active_persona', personaId);
-            renderPersonaTabs();
-            renderChatMessages();
-        }
-
-        function updateActivePersonaBanner() {
-            const persona = personas.find(p => p.id === activePersonaId) || personas[0];
-            document.getElementById('banner-avatar').textContent = persona.icon;
-            document.getElementById('banner-name').textContent = persona.name;
-            document.getElementById('banner-desc').textContent = persona.desc;
-            
-            const voiceObj = voices.find(v => v.voiceURI === persona.voiceURI);
-            document.getElementById('banner-voice-name').textContent = voiceObj ? voiceObj.name : 'Voz Automática';
-
-            // Sidebar details
-            document.getElementById('sidebar-system-prompt').textContent = persona.prompt;
-            document.getElementById('sidebar-pitch').textContent = persona.pitch;
-            document.getElementById('sidebar-rate').textContent = persona.rate + 'x';
-        }
-
-        function renderChatMessages() {
-            const container = document.getElementById('chat-messages');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const persona = personas.find(p => p.id === activePersonaId) || personas[0];
-            const history = chatHistories[persona.id] || [];
-
-            // If empty history, insert greeting
-            if (history.length === 0 && persona.greeting) {
-                history.push({ id: 'greeting', role: 'ai', text: persona.greeting, timestamp: new Date().toLocaleTimeString() });
-                chatHistories[persona.id] = history;
-                saveChatHistories();
-            }
-
-            history.forEach(msg => {
-                appendMessageBubble(container, msg, persona);
-            });
-
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function appendMessageBubble(container, msg, persona) {
-            const isUser = msg.role === 'user';
-            const wrapper = document.createElement('div');
-            wrapper.id = `msg-${msg.id || Math.random()}`;
-            wrapper.className = `flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`;
-
-            const avatar = isUser ? '👤' : persona.icon;
-            const bubbleBg = isUser 
-                ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none' 
-                : 'glass-card text-gray-100 rounded-2xl rounded-tl-none border border-gray-800';
-
-            wrapper.innerHTML = `
-                ${!isUser ? `<div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-sm shrink-0 border border-gray-700">${avatar}</div>` : ''}
-                <div class="max-w-[80%] space-y-1">
-                    <div class="p-3.5 ${bubbleBg} text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">
-                        ${escapeHtml(msg.text)}
-                    </div>
-                    <div class="flex items-center space-x-2 text-[10px] text-gray-500 ${isUser ? 'justify-end' : 'justify-start'}">
-                        <span>${msg.timestamp || ''}</span>
-                        ${!isUser ? `
-                            <button onclick="speakPersonaMessage('${escapeHtml(msg.text).replace(/'/g, "\\'")}', personas.find(p=>p.id==='${persona.id}'))" class="hover:text-blue-400 ml-1" title="Ouvir">
-                                <i class="fa-solid fa-volume-high"></i>
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-                ${isUser ? `<div class="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center text-sm shrink-0 text-white">${avatar}</div>` : ''}
-            `;
-
-            container.appendChild(wrapper);
-        }
-
-        function addChatMessage(personaId, role, text) {
-            if (!chatHistories[personaId]) chatHistories[personaId] = [];
-            const newMsg = {
-                id: Date.now(),
-                role: role,
                 text: text,
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            };
-            chatHistories[personaId].push(newMsg);
-            saveChatHistories();
+                time: getCurrentTime()
+            });
 
-            const container = document.getElementById('chat-messages');
-            const persona = personas.find(p => p.id === personaId);
-            if (container && persona) {
-                appendMessageBubble(container, newMsg, persona);
-                container.scrollTop = container.scrollHeight;
+            saveState();
+            updateUI();
+
+            // Disable send button while processing
+            elements.btnSendMessage.disabled = true;
+
+            // Fetch AI Response
+            const reply = await fetchAIResponse(text);
+
+            // Add AI response
+            state.messages[state.activePersonaId].push({
+                role: 'model',
+                text: reply,
+                time: getCurrentTime()
+            });
+
+            saveState();
+            updateUI();
+
+            // AutoSpeak response
+            speakText(reply);
+
+            elements.btnSendMessage.disabled = false;
+        }
+
+        // --- Modals logic ---
+        function openModal(modalEl) {
+            modalEl.classList.remove('hidden');
+            setTimeout(() => modalEl.classList.remove('opacity-0'), 10);
+        }
+
+        function closeModal(modalEl) {
+            modalEl.classList.add('opacity-0');
+            setTimeout(() => modalEl.classList.add('hidden'), 200);
+        }
+
+        function populateSettingsModal() {
+            elements.inputApiKey.value = state.settings.apiKey;
+            elements.selectModel.value = state.settings.model;
+            elements.rangeSpeed.value = state.settings.speed;
+            elements.lblSpeed.textContent = state.settings.speed;
+            elements.rangePitch.value = state.settings.pitch;
+            elements.lblPitch.textContent = state.settings.pitch;
+            elements.chkUseContext.checked = state.settings.useContext;
+            elements.rangeMaxContext.value = state.settings.maxContext;
+            elements.lblMaxContext.textContent = state.settings.maxContext;
+            
+            if (state.settings.voiceName) {
+                elements.selectVoice.value = state.settings.voiceName;
             }
         }
 
-        function addTypingIndicator(persona) {
-            const container = document.getElementById('chat-messages');
-            const id = 'typing-' + Date.now();
-            const wrapper = document.createElement('div');
-            wrapper.id = id;
-            wrapper.className = 'flex gap-3 justify-start';
-            wrapper.innerHTML = `
-                <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-sm shrink-0 border border-gray-700">${persona.icon}</div>
-                <div class="p-3.5 glass-card rounded-2xl rounded-tl-none border border-gray-800 flex items-center space-x-1.5 text-gray-400">
-                    <span class="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></span>
-                    <span class="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:0.2s]"></span>
-                    <span class="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:0.4s]"></span>
-                </div>
-            `;
-            container.appendChild(wrapper);
-            container.scrollTop = container.scrollHeight;
-            return id;
-        }
-
-        function removeMessage(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-        }
-
-        function saveChatHistories() {
-            localStorage.setItem('vozia_chats', JSON.stringify(chatHistories));
-        }
-
-        function clearCurrentChatHistory() {
-            chatHistories[activePersonaId] = [];
-            saveChatHistories();
-            renderChatMessages();
-            showToast('Histórico desta conversa foi limpo com sucesso.', 'info');
-        }
-
-        function renderPersonasGrid() {
-            const grid = document.getElementById('personas-grid');
-            if (!grid) return;
-            grid.innerHTML = '';
-
-            personas.forEach(p => {
-                const voiceObj = voices.find(v => v.voiceURI === p.voiceURI);
-                const card = document.createElement('div');
-                card.className = 'glass-panel p-5 rounded-2xl border border-gray-800 flex flex-col justify-between space-y-4 hover:border-gray-700 transition';
-                
-                card.innerHTML = `
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <span class="text-3xl p-2 rounded-2xl bg-gray-800 border border-gray-700">${p.icon}</span>
-                                <div>
-                                    <h3 class="font-bold text-white text-base">${escapeHtml(p.name)}</h3>
-                                    <p class="text-xs text-gray-400">${escapeHtml(p.desc)}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="space-y-1.5 text-xs text-gray-300">
-                            <p class="text-gray-400 text-[11px] font-medium">Instruções de Sistema:</p>
-                            <p class="p-2 rounded-lg bg-gray-900 border border-gray-800 text-[11px] line-clamp-3 text-gray-400">${escapeHtml(p.prompt)}</p>
-                        </div>
-
-                        <div class="flex flex-wrap gap-2 text-[10px]">
-                            <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Voz: ${voiceObj ? voiceObj.name : 'Padrão'}</span>
-                            <span class="px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Tom: ${p.pitch}</span>
-                            <span class="px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Velocidade: ${p.rate}x</span>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between pt-3 border-t border-gray-800 gap-2">
-                        <button onclick="speakPersonaMessage('${escapeHtml(p.greeting).replace(/'/g, "\\'")}', personas.find(x=>x.id==='${p.id}'))" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 transition flex items-center space-x-1">
-                            <i class="fa-solid fa-play text-[10px]"></i> <span>Ouvir Voz</span>
-                        </button>
-
-                        <div class="flex items-center space-x-1">
-                            <button onclick="openEditPersonaModal('${p.id}')" class="px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-xs text-purple-400 transition" title="Editar">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="deletePersona('${p.id}')" class="px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-rose-950/50 text-xs text-rose-400 transition" title="Excluir">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    </div>
+        function populatePersonasModal() {
+            elements.personaList.innerHTML = '';
+            
+            state.personas.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
+                    p.id === state.activePersonaId 
+                        ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' 
+                        : 'bg-surfaceInput/60 text-gray-300 hover:bg-surfaceHover border border-transparent'
+                }`;
+                btn.innerHTML = `
+                    <span class="truncate">${p.name}</span>
+                    ${p.id === state.activePersonaId ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}
                 `;
-                grid.appendChild(card);
+                btn.onclick = () => {
+                    state.activePersonaId = p.id;
+                    saveState();
+                    populatePersonasModal();
+                    loadPersonaEditForm(p.id);
+                    updateUI();
+                };
+                elements.personaList.appendChild(btn);
             });
+
+            loadPersonaEditForm(state.activePersonaId);
+            lucide.createIcons();
         }
 
-        function openCreatePersonaModal() {
-            document.getElementById('modal-title').textContent = 'Criar Nova Persona';
-            document.getElementById('persona-form-id').value = '';
-            document.getElementById('form-persona-name').value = '';
-            document.getElementById('form-persona-icon').value = '🎭';
-            document.getElementById('form-persona-desc').value = '';
-            document.getElementById('form-persona-prompt').value = '';
-            document.getElementById('form-persona-greeting').value = 'Olá! Como posso te ajudar?';
-            document.getElementById('form-persona-pitch').value = '1.0';
-            document.getElementById('form-persona-rate').value = '1.0';
-            document.getElementById('modal-pitch-val').textContent = '1.0';
-            document.getElementById('modal-rate-val').textContent = '1.0x';
-
-            populateVoiceList();
-            document.getElementById('persona-modal').classList.remove('hidden');
-        }
-
-        function openEditPersonaModal(id) {
-            const persona = personas.find(p => p.id === id);
+        function loadPersonaEditForm(personaId) {
+            const persona = state.personas.find(p => p.id === personaId);
             if (!persona) return;
 
-            document.getElementById('modal-title').textContent = 'Editar Persona';
-            document.getElementById('persona-form-id').value = persona.id;
-            document.getElementById('form-persona-name').value = persona.name;
-            document.getElementById('form-persona-icon').value = persona.icon;
-            document.getElementById('form-persona-desc').value = persona.desc;
-            document.getElementById('form-persona-prompt').value = persona.prompt;
-            document.getElementById('form-persona-greeting').value = persona.greeting || '';
-            document.getElementById('form-persona-pitch').value = persona.pitch;
-            document.getElementById('form-persona-rate').value = persona.rate;
-            document.getElementById('modal-pitch-val').textContent = persona.pitch;
-            document.getElementById('modal-rate-val').textContent = persona.rate + 'x';
-
-            populateVoiceList();
-            document.getElementById('form-persona-voice').value = persona.voiceURI;
-
-            document.getElementById('persona-modal').classList.remove('hidden');
+            elements.editPersonaName.value = persona.name;
+            elements.editPersonaBio.value = persona.bio;
+            elements.editPersonaAvatar.value = persona.avatar;
+            elements.editPersonaPrompt.value = persona.prompt;
+            elements.editPersonaGreeting.value = persona.greeting;
         }
 
-        function openEditPersonaModalForActive() {
-            openEditPersonaModal(activePersonaId);
-        }
-
-        function closePersonaModal() {
-            document.getElementById('persona-modal').classList.add('hidden');
-        }
-
-        function handleSavePersona(event) {
-            event.preventDefault();
-            const id = document.getElementById('persona-form-id').value || 'persona_' + Date.now();
-            const name = document.getElementById('form-persona-name').value.trim();
-            const icon = document.getElementById('form-persona-icon').value.trim() || '🤖';
-            const desc = document.getElementById('form-persona-desc').value.trim();
-            const prompt = document.getElementById('form-persona-prompt').value.trim();
-            const greeting = document.getElementById('form-persona-greeting').value.trim();
-            const voiceURI = document.getElementById('form-persona-voice').value;
-            const pitch = parseFloat(document.getElementById('form-persona-pitch').value);
-            const rate = parseFloat(document.getElementById('form-persona-rate').value);
-
-            const existingIndex = personas.findIndex(p => p.id === id);
-            const personaObj = { id, name, icon, desc, prompt, greeting, voiceURI, pitch, rate };
-
-            if (existingIndex >= 0) {
-                personas[existingIndex] = personaObj;
-            } else {
-                personas.push(personaObj);
-            }
-
-            localStorage.setItem('vozia_personas', JSON.stringify(personas));
-            closePersonaModal();
-            renderPersonasGrid();
-            renderPersonaTabs();
-            showToast('Persona salva com sucesso!', 'success');
-        }
-
-        function deletePersona(id) {
-            if (personas.length <= 1) {
-                showToast('Você precisa manter pelo menos uma persona criada.', 'warning');
-                return;
-            }
-
-            personas = personas.filter(p => p.id !== id);
-            localStorage.setItem('vozia_personas', JSON.stringify(personas));
-            if (activePersonaId === id) activePersonaId = personas[0].id;
-
-            renderPersonasGrid();
-            renderPersonaTabs();
-            showToast('Persona removida.', 'info');
-        }
-
-        function loadSampleText(type) {
-            const textarea = document.getElementById('tts-input-text');
-            const samples = {
-                noticia: "A exploração espacial atingiu um novo marco histórico hoje com o lançamento bem-sucedido do novo telescópio quântico. Cientistas esperam capturar imagens inéditas dos primeiros momentos do universo.",
-                poema: "No meio do caminho tinha uma pedra. Tinha uma pedra no meio do caminho. Nunca me esquecerei desse acontecimento na vida de minhas retinas tão fatigadas.",
-                tech: "A inteligência artificial generativa e os modelos de síntese de voz estão transformando radicalmente a acessibilidade digital e a criação de interfaces conversacionais humanizadas."
-            };
-            textarea.value = samples[type] || '';
-            updateCharCount();
-            showToast('Exemplo carregado!', 'info');
-        }
-
-        function clearTtsText() {
-            document.getElementById('tts-input-text').value = '';
-            updateCharCount();
-        }
-
-        function updateCharCount() {
-            const text = document.getElementById('tts-input-text').value;
-            document.getElementById('char-count').textContent = `${text.length} caracteres`;
-        }
-
-        function testCurrentVoice() {
-            speakTtsText("Olá! Este é um teste da voz e das configurações selecionadas.");
-        }
-
-        function toggleMicInput() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                showToast('Seu navegador não suporta reconhecimento de fala.', 'error');
-                return;
-            }
-
-            const micBtn = document.getElementById('btn-mic-input');
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'pt-BR';
-            recognition.interimResults = false;
-
-            recognition.onstart = () => {
-                micBtn.classList.add('bg-rose-600', 'text-white', 'animate-pulse');
-                showToast('Fale agora...', 'info');
+        // --- Event Listeners Setup ---
+        function setupEventListeners() {
+            // Send Message Trigger
+            elements.btnSendMessage.onclick = handleSendMessage;
+            elements.chatInput.onkeydown = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                }
             };
 
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById('chat-input-text').value = transcript;
+            // Open Modals
+            elements.btnOpenSettings.onclick = () => {
+                populateSettingsModal();
+                openModal(elements.modalSettings);
             };
 
-            recognition.onerror = (e) => {
-                console.error('Speech rec error', e);
+            elements.btnOpenPersonas.onclick = () => {
+                populatePersonasModal();
+                openModal(elements.modalPersonas);
             };
 
-            recognition.onend = () => {
-                micBtn.classList.remove('bg-rose-600', 'text-white', 'animate-pulse');
-            };
-
-            recognition.start();
-        }
-
-        function saveApiKeySettings() {
-            const key = document.getElementById('gemini-api-key').value.trim();
-            localStorage.setItem('vozia_gemini_key', key);
-            showToast('Chave de API salva localmente!', 'success');
-        }
-
-        function toggleApiKeyVisibility() {
-            const input = document.getElementById('gemini-api-key');
-            const icon = document.getElementById('eye-icon');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fa-solid fa-eye-slash';
-            } else {
-                input.type = 'password';
-                icon.className = 'fa-solid fa-eye';
-            }
-        }
-
-        function switchTab(tabId) {
-            activeTab = tabId;
-            document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
-            document.querySelectorAll('.tab-nav-btn').forEach(btn => {
-                btn.className = 'tab-nav-btn flex items-center space-x-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800/60 transition-all duration-200';
+            // Close Modals
+            document.querySelectorAll('.btnCloseModal').forEach(btn => {
+                btn.onclick = (e) => {
+                    closeModal(elements.modalSettings);
+                    closeModal(elements.modalPersonas);
+                };
             });
 
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeNavBtn = document.getElementById(`nav-btn-${tabId}`);
-            if (activeNavBtn) {
-                activeNavBtn.className = 'tab-nav-btn active flex items-center space-x-2 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-blue-600 text-white shadow-md';
-            }
+            // Range Listeners
+            elements.rangeSpeed.oninput = (e) => elements.lblSpeed.textContent = e.target.value;
+            elements.rangePitch.oninput = (e) => elements.lblPitch.textContent = e.target.value;
+            elements.rangeMaxContext.oninput = (e) => elements.lblMaxContext.textContent = e.target.value;
 
-            if (tabId === 'chat') {
-                renderPersonaTabs();
-                renderChatMessages();
-            } else if (tabId === 'personas') {
-                renderPersonasGrid();
-            }
-        }
+            // Save Settings
+            elements.btnSaveSettings.onclick = () => {
+                state.settings.apiKey = elements.inputApiKey.value.trim();
+                state.settings.model = elements.selectModel.value;
+                state.settings.voiceName = elements.selectVoice.value;
+                state.settings.speed = elements.rangeSpeed.value;
+                state.settings.pitch = elements.rangePitch.value;
+                state.settings.useContext = elements.chkUseContext.checked;
+                state.settings.maxContext = parseInt(elements.rangeMaxContext.value, 10);
 
-        function showToast(msg, type = 'info') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-
-            const toast = document.createElement('div');
-            const colors = {
-                success: 'bg-emerald-900/90 border-emerald-700 text-emerald-200',
-                error: 'bg-rose-900/90 border-rose-700 text-rose-200',
-                warning: 'bg-amber-900/90 border-amber-700 text-amber-200',
-                info: 'bg-gray-900/90 border-gray-700 text-gray-200'
+                saveState();
+                closeModal(elements.modalSettings);
+                elements.statusText.textContent = "Configurações salvas.";
+                setTimeout(() => elements.statusText.textContent = "Aguardando sua próxima pergunta.", 2000);
             };
 
-            toast.className = `px-4 py-3 rounded-xl border text-xs shadow-lg backdrop-blur-md transition-all duration-300 transform translate-x-full ${colors[type] || colors.info}`;
-            toast.textContent = msg;
+            // Save Persona Edit
+            elements.btnSavePersona.onclick = () => {
+                const currentPersona = getActivePersona();
+                currentPersona.name = elements.editPersonaName.value.trim() || 'Nova Persona';
+                currentPersona.bio = elements.editPersonaBio.value.trim();
+                currentPersona.avatar = elements.editPersonaAvatar.value.trim() || 'https://placehold.co/400x400/1e232d/ffffff?text=Persona';
+                currentPersona.prompt = elements.editPersonaPrompt.value.trim();
+                currentPersona.greeting = elements.editPersonaGreeting.value.trim();
 
-            container.appendChild(toast);
+                saveState();
+                populatePersonasModal();
+                updateUI();
+                elements.statusText.textContent = "Persona atualizada com sucesso.";
+                setTimeout(() => elements.statusText.textContent = "Aguardando sua próxima pergunta.", 2000);
+            };
 
-            setTimeout(() => {
-                toast.classList.remove('translate-x-full');
-            }, 50);
-
-            setTimeout(() => {
-                toast.classList.add('translate-x-full');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            // Reset Chat for Active Persona
+            elements.btnResetChat.onclick = () => {
+                const persona = getActivePersona();
+                state.messages[state.activePersonaId] = [{
+                    role: 'model',
+                    text: persona.greeting,
+                    time: getCurrentTime()
+                }];
+                saveState();
+                updateUI();
+                closeModal(elements.modalPersonas);
+            };
         }
 
-        window.onload = function() {
-            initVoices();
-            setupVisualizer();
-            updateSliderValues();
-
-            // Load saved API Key in input
-            const savedKey = localStorage.getItem('vozia_gemini_key');
-            if (savedKey) {
-                const keyInput = document.getElementById('gemini-api-key');
-                if (keyInput) keyInput.value = savedKey;
-            }
-
-            // Init default persona tabs and chat
-            renderPersonaTabs();
-            renderPersonasGrid();
-        };
+        // Start Application
+        window.onload = init;
     </script>
 </body>
 </html>
