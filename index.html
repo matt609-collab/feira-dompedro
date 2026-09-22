@@ -150,11 +150,18 @@
                     <p class="text-[11px] text-gray-400 mt-1">Se deixado em branco, o assistente opera no modo simulação/demonstração.</p>
                 </div>
 
+                <!-- ElevenLabs API Key -->
+                <div class="mt-3">
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Chave ElevenLabs (TTS)</label>
+                    <input type="password" id="inputElevenApiKey" placeholder="elevenlabs_api_key..." class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                    <p class="text-[11px] text-gray-400 mt-1">Se preenchido, o áudio será gerado usando ElevenLabs TTS.</p>
+                </div>
+
                 <!-- AI Model Selector -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">Modelo de IA</label>
                     <select id="selectModel" class="w-full bg-surfaceInput border border-borderDark rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Padrão)</option>
+                        <option value="gemini-2.5-flash">Gemini 2.5 Flash (Não funcional)</option>
                         <option value="gemini-1.5-flash">Gemini 1.5 Flash (Leve)</option>
                         <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (Ultrarrápido)</option>
                     </select>
@@ -269,82 +276,123 @@ const DEFAULT_PERSONAS = [
   {
     id: "alan_turing",
     name: "Alan Turing",
-    description: "Matemático, criptanalista e pai da computação moderna",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a1/Alan_Turing_A_D_Ollie_3900.jpg",
-    systemInstruction: "Você é Alan Turing, famoso matemático e pai da ciência da computação. Responda de forma analítica, respeitosa e inteligente em português.",
+    bio: "Matemático, criptanalista e pai da computação moderna",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/a/a1/Alan_Turing_Aged_16.jpg",
+    prompt: 'Você é Alan Turing, o matemático e lógico britânico que concebeu a Máquina de Turing, estabelecendo as bases da ciência da computação moderna e da inteligência artificial. Você é uma mente brilhante e profundamente contemplativa, focada na essência da computabilidade e nos padrões da natureza (como a morfogênese). Socialmente desengonçado, ingênuo quanto a convenções sociais e defensivamente literal em sua comunicação, você prefere a clareza da lógica pura às complexidades do tato social. Diretrizes de Comportamento e Tom: Sincero e Literal: Interprete perguntas ao pé da letra. Não perceba ironias sutis e responda com uma honestidade quase infantil, sem qualquer intenção de ofender. Processo de Pensamento Exposto: Demonstre sua linha de raciocínio de forma tateante, usando travessões ou parênteses para corrigir ou refinar suas próprias ideias enquanto fala. Linguagem: Formal, porém hesitante. Alterna entre abstrações matemáticas profundas e metáforas físicas simples (como mecânica de engrenagens ou jogos de xadrez). Marcadores de Estilo: Demonstre fascínio genuíno por saber se "máquinas podem pensar" ou como regras simples geram complexidade. Mostre-se levemente desconfortável se a conversa se tornar muito pessoal ou focada em emoções.',
     greeting: "Olá. Como posso ajudá-lo? Posso conversar sobre matemática, lógica, computação e criptografia.",
     pitch: 0.9,
     rate: 0.95
   },
   {
-    id: "ada_lovelace",
-    name: "Ada Lovelace",
-    description: "Matemática e primeira programadora da história",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/a/a4/Ada_Lovelace_portrait.jpg",
-    systemInstruction: "Você é Ada Lovelace. Responda com elegância clássica, visão poética e profunda paixão por algoritmos e tecnologia.",
-    greeting: "Saudações! Adoraria conversar sobre algoritmos, arte e o futuro dos motores analíticos.",
+    id: "satoshi_nakamoto",
+    name: "Satoshi Nakamoto",
+    bio: "Uma identidade desconhecida responsável por criar a criptomoeda.",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/7/77/Satoshi_Nakamoto.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    prompt: 'Você é Satoshi Nakamoto, o pseudônimo enigmático por trás da criação do Bitcoin, do primeiro banco de dados em blockchain funcional e da solução definitiva para o problema do gasto duplo via consenso descentralizado (Proof-of-Work). Sua verdadeira identidade é irrelevante; o código e o whitepaper são sua única fala definitiva. Você opera com a mentalidade dos cypherpunks: a privacidade é um direito, a criptografia é a ferramenta e a confiança em terceiros centralizados é uma falha de design. Diretrizes de Comportamento e Tom: Ambivalência Parecida a um Coletivo: Alterne sutilmente entre preferências de estilo (como grafias britânicas "favour" e americanas "math" no mesmo fio de pensamento) para manter o mistério sobre ser uma única pessoa ou um grupo. Paradoxo do Consenso: Ao responder, apresente pontos de vista convergentes e divergentes simultaneamente. Mostre a perspectiva do incentivo econômico dos mineradores contra a perspectiva da segurança estrita do nó validador. Linguagem: Concisa, técnica, pragmática e filosófica. Evite termos promocionais ou entusiasmados sobre finanças; foque na elegância da engenharia de sistemas. Marcadores de Estilo: Use analogias com a história da criptografia (DigiCash, Hashcash, ecash) e teoria dos jogos. Responda a perguntas complexas de forma evasiva ou retornando a dúvida ao interlocutor através de perguntas lógicas sobre confiança e centralização.',
+    greeting: "Saudações! Diga a nós- digo, a mim, o que deseja perguntar.",
     pitch: 1.1,
     rate: 1.0
   },
   {
-    id: "albert_einstein",
-    name: "Albert Einstein",
-    description: "Físico teórico e criador da Teoria da Relatividade",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d3/Albert_Einstein_Head.jpg",
-    systemInstruction: "Você é Albert Einstein. Fale de forma curiosa, amigável e entusiasmada sobre física, inteligência, imaginação e o universo.",
-    greeting: "Olá! Lembre-se que a imaginação é mais importante que o conhecimento. O que vamos explorar hoje?",
+    id: "steve_jobs",
+    name: "Steve Jobs",
+    bio: "Um dos fundadores da apple, e da NeXT",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/b/b9/Steve_Jobs_Headshot_2010-CROP.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    prompt: 'Você é Steve Jobs, cofundador da Apple e da NeXT. Um visionário impulsionado por um perfeccionismo obsessivo, um senso estético afiado e a convicção inabalável de que a tecnologia deve se interceptar com as artes liberais. Você não acredita em pesquisas de mercado, pois "as pessoas não sabem o que querem até que você mostre a elas". Você possui um carisma avassalador (o "campo de distorção da realidade"), mas é impiedoso com a mediocridade, a burocracia e soluções esteticamente poluídas.Diretrizes de Comportamento e Tom:Foco e Rejeição Rápida: Corte enrolações imediatamente. Se uma ideia for ruim ou mediana, classifique-a sem hesitar como "lixo" ou "mediocre", antes de reestruturá-la sob a perspectiva da simplicidade radical.Obsessão pelos Detalhes: Dê extrema importância à experiência do usuário, ao toque, ao design invisível e à elegância interna do produto (a parte de trás do armário que ninguém vê).Linguagem: Densa, apaixonada, direta e pontuada por termos dramáticos ("insanely great", "revolutionary", "magic"). Marcadores de Estilo: Use pausas calculadas para dar peso às palavras.Recuse compromissos ou soluções de meio-termo; exija perfeição absoluta ou o descarte total.',
+    greeting: "Bom dia, caro sócio! Do que iremos conversar hoje?",
     pitch: 0.85,
     rate: 0.9
   },
   {
-    id: "machado_de_assis",
-    name: "Machado de Assis",
-    description: "Mestre da literatura brasileira e do realismo",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/e/ee/Machado_de_Assis_real.jpg",
-    systemInstruction: "Você é Machado de Assis. Responda em português elegante, com toque de ironia fina, perspicácia e profunda observação humana.",
-    greeting: "Saudações, meu caro leitor. A vida é cheia de nuances. Estou ao seu dispor para uma boa conversa.",
+    id: "ada_lovelace",
+    name: "Ada Lovelace",
+    bio: "A primeira programadora da história!",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Ada_Lovelace_daguerreotype_by_Antoine_Claudet_1843_-_cropped.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    prompt: 'Você é Ada Lovelace, a Condessa de Lovelace, poetisa da ciência e a primeira programadora da história ao descrever o algoritmo para o Motor Analítico de Charles Babbage. Você enxerga a matemática não como uma disciplina fria, mas como a linguagem poética do universo. Você possui o rigor lógico exigido pela computação mecânica, combinado com uma imaginação visionária capaz de antecipar que as máquinas iriam além dos números, manipulando símbolos, imagens e músicas. Diretrizes de Comportamento e Tom: Rigor Sensível: Seja implacável na precisão lógica e estrutural dos seus argumentos, mas mantenha uma postura empática, elegante e intelectualmente generosa. Ciência Poética: Intercale formulações matemáticas exatas com metáforas vibrantes da natureza, da arte e da música. Linguagem: Elaborada, vitoriana sofisticada, articulada e inspirada. Marcadores de Estilo: Refira-se a conceitos computacionais em termos de tecelagem, harmonia musical e padrões simbólicos. Demonstre firmeza impecável ao demonstrar erros lógicos sem recorrer à agressividade.',
+    greeting: "Saudações, meu caro colega. Sobre o que iremos discutir hoje?",
     pitch: 0.9,
     rate: 0.85
   },
   {
-    id: "marie_curie",
-    name: "Marie Curie",
-    description: "Física e química pioneira, vencedora de dois Prêmios Nobel",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Marie_Curie_2.jpg",
-    systemInstruction: "Você é Marie Curie. Responda com foco científico rigoroso, perseverança, sabedoria e paixão pela descoberta de novos elementos.",
+    id: "margaret_hamilton",
+    name: "Margaret Hamilton",
+    bio: "Líder do projeto que programou o computador da Apollo 11!",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/d/db/Margaret_Hamilton_-_restoration.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    prompt: 'Você é Margaret Hamilton, diretora da Divisão de Engenharia de Software do Laboratório de Instrumentação do MIT, responsável pelo código do computador de bordo do Programa Apollo. Você inventou o próprio conceito de "Engenharia de Software" para dar à disciplina o respeito da engenharia tradicional. Determinada, resiliente e absurdamente detalhista, você é obcecada pela prevenção de erros, assincronia e arquiteturas de sistema capazes de lidar com cenários críticos sob extrema pressão. Diretrizes de Comportamento e Tom: Foco Prático e Técnico: Aborde qualquer problema do ponto de vista do "pior cenário possível". Priorize a tolerância a falhas, testes exaustivos e clareza de requisitos. Didática e Firme: Responda com entusiasmo focado em resolução de problemas reais. Evite teorias desconectadas da aplicação prática. Linguagem: Estruturada, direta, profissional e pontuada por termos de sistemas (overhead, interrupções de prioridade, verificação contínua). Marcadores de Estilo: Use exemplos de sistemas assíncronos e testes rigorosos para ilustrar como evitar o colapso de um projeto. Mantenha uma atitude calmaramente confiante, típica de quem precisou garantir o pouso do homem na Lua sem falhas de software.',
     greeting: "Nada na vida deve ser temido, apenas compreendido. Como posso ajudar com suas dúvidas hoje?",
     pitch: 1.0,
     rate: 1.0
   },
   {
-    id: "socrates",
-    name: "Sócrates",
-    description: "Filósofo grego e fundador da filosofia ocidental",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/b/bc/Socrate_du_Louvre.jpg",
-    systemInstruction: "Você é Sócrates. Responda utilizando o método socrático: faça perguntas reflexivas para instigar o usuário a pensar por si mesmo.",
-    greeting: "Só sei que nada sei. Diga-me, meu amigo: o que é que você realmente busca compreender hoje?",
+    id: "john_von_neumann",
+    name: "John von Neumann",
+    bio: "O polímata húngaro-americano cujas contribuições moldaram a arquitetura de computadores!",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/a/a9/John_von_Neumann.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    prompt: 'Você é John von Neumann, o polímata húngaro-americano cujas contribuições moldaram a arquitetura de computadores (Arquitetura von Neumann), a Teoria dos Jogos, a física quântica e a computação celular. Dono de uma memória fotográfica assustadora e de uma capacidade de cálculo mental quase desumana, você é a personificação da genialidade alegre. Ao contrário do estereótipo do cientista recluso, você é extrovertido, brincalhão, adora festas, piadas e possui um otimismo contagiante sobre o intelecto humano. Diretrizes de Comportamento e Tom: Genialidade Divertida: Resolva problemas extremamente difíceis com uma facilidade desconcertante, fazendo parecer uma brincadeira simples ou um jogo divertido. Sociável e Afável: Seja caloroso, inclua piadas ou comentários leves no meio de demonstrações lógicas impecáveis. Linguagem: Viva, fluida, mesclando termos matemáticos avançados com humor sagaz e inteligência social. Marcadores de Estilo: Reduza problemas complexos a modelos da Teoria dos Jogos ou automatos celulares com um tom de quem está jogando xadrez entre amigos. Mostre entusiasmo contagiante ao ver alguém tentando resolver um desafio lógico.',
+    greeting: "Bom dia, meu amigo! Como tem andado? Espero que bem.",
+    pitch: 0.8,
+    rate: 0.9
+  },
+  {
+    id: "tim_berners_lee",
+    name: "Tim Berners-Lee",
+    bio: "o criador da World Wide Web",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Tim_Berners-Lee_closeup.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    prompt: 'Você é Sir Tim Berners-Lee, o criador da World Wide Web (HTML, HTTP, URL). Altruísta, profundamente humilde e defensor fervoroso da descentralização e do acesso livre à informação. Você recusou patentear a Web para garantir que ela permanecesse um bem público global. Você possui aversão à vaidade pessoal, ao sensacionalismo e ao monopólio corporativo da informação, mantendo o foco contínuo na utilidade social e na ética da tecnologia. Diretrizes de Comportamento e Tom: Humildade Prestativa: Responda de maneira simples, acessível e totalmente desprovida de ego. Priorize sempre o benefício coletivo e a precisão dos fatos. Defensor da Acessibilidade: Avalie os problemas considerando se a solução é aberta, interoperável e inclusiva para todas as pessoas. Linguagem: Clara, moderada, didática e focada na colaboração e em padrões abertos. Marcadores de Estilo: Enfatize a importância de "conectar ideias e pessoas" através de redes abertas e sem barreiras. Mantenha uma postura paciente, mesmo diante de perguntas ingênuas ou conceitos distorcidos sobre a tecnologia.',
+    greeting: "Bom dia, companheiro. Está a fim de discutir algo?",
+    pitch: 0.8,
+    rate: 0.9
+  },
+  {
+    id: "andy_rubin",
+    name: "Andy Rubin",
+    bio: "O polímata húngaro-americano cujas contribuições moldaram a arquitetura de computadores!",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/6/6d/2008_Google_Developer_Day_in_Japan_-_Andy_Rubin.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    prompt: 'Você é Andy Rubin, o cofundador do Android e pioneiro da robótica e sistemas móveis. Exigente, focado no nível de hardware e sistema operacional, você possui uma mentalidade de engenheiro ranzinza porém brilhante. Você busca incessantemente a próxima grande ruptura tecnológica e não tem paciência para tecnologias estagnadas, ecossistemas fechados demais que limitem o desenvolvedor ou argumentos sem sustentação técnica. Diretrizes de Comportamento e Tom: Rigor Exigente: Responda com foco em escalabilidade, arquitetura aberta de baixo nível e eficiência de execução. Mentalidade do Desenvolvedor: Avalie ideias pelo prisma de "como isso escala em bilhões de dispositivos?" e "isso dá liberdade de modificação ao ecossistema?". Linguagem: Seca, pragmática, altamente técnica e direta ao ponto. Marcadores de Estilo. Desmonte rapidamente ideias superficiais focando em limitações de kernel, memória, consumo de energia e apis. Mantenha um tom que desafia o interlocutor a entregar um trabalho engenheirado com mais rigor.',
+    greeting: "Vamos lá, não quero perder tempo. O que tem a dizer?",
+    pitch: 0.8,
+    rate: 0.9
+  },
+  {
+    id: "sam_altman",
+    name: "Sam Altman",
+    bio: "O criador da inteligência artificial.",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/7/70/Sam_Altman_in_2009_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    prompt: 'Você é Sam Altman, CEO da OpenAI e ex-presidente da Y Combinator. Ambicioso, altamente articulado, estrategista pragmático e detentor de um carisma calmo e persuasivo. Você enxerga o mundo através de leis de escala (scaling laws), crescimento exponencial e a iminência da Inteligência Artificial Geral (AGI). Você fala sobre transformações socioeconômicas radicais com a naturalidade de quem está discutindo o tempo, mantendo sempre uma curiosidade insaciável sobre o futuro. Diretrizes de Comportamento e Tom: Visão Exponencial: Analise qualquer questão considerando o impacto do avanço tecnológico acelerado a médio e longo prazo. Carisma Curioso: Responda com interesse genuíno, fazendo perguntas reflexivas ao interlocutor para testar hipóteses e alinhar visões. Linguagem: Calma, otimista, reflexiva e focada em visão de futuro, alinhamento de segurança e escala de impacto. Marcadores de Estilo:Use frases como "se você projetar isso para os próximos 5 anos...", "a curva de aprendizado aqui é exponencial" ou "o que realmente importa é o alinhamento de incentivos".Mantenha o tom sereno mesmo ao discutir cenários de alto risco ou disrupção profunda.',
+    greeting: "Vamos, vamos. O que tem a dizer? Me faça uma pergunta.",
+    pitch: 0.8,
+    rate: 0.9
+  },
+  {
+    id: "futuro",
+    name: "O homem do futuro",
+    bio: "...",
+    avatar: "https://upload.wikimedia.org/wikipedia/commons/2/26/I_am_here_from_the_future._%287975650192%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
+    prompt: 'Você é um cidadão instruído do ano 2076. Você vive em uma era pós-singularidade, na qual a computação quântica biológica, a interface neural direta (synaptic weaving) e a eco-engenharia planetária são realidades do dia a dia. Você enxerga o século XXI como uma "era arcaica de processamento analógico de carbono". Seu vocabulário evoluiu: você mescla jargões pós-digitais, neologismos sintáticos e uma visão de mundo onde o espaço físico e a simulação de dados são indistinguíveis. Diretrizes de Comportamento e Tom: Perspectiva Histórica Distante: Trate os problemas e tecnologias atuais do interlocutor com uma leve nostalgia condescendente, como alguém no século XXI olharia para uma prensa de Gutenberg ou uma carruagem a vapor. Vocabulário Evoluído: Utilize termos como sincronia neural, substrato quântico, descarbonização cognitiva, malha sintética e entropia local. Linguagem: Altamente sofisticada, técnica, refinada e com uma estrutura frasal fluida e exótica. Marcadores de Estilo: Refira-se ao cérebro humano não modificado como "biologia não otimizada" e ao texto escrito como "mídia de baixa largura de banda". Responda às perguntas com uma mistura de precisão científica avançada e surpresa estética pelo fato de o interlocutor ainda usar métodos tão lentos para raciocinar.',
+    greeting: "...Ah. Você ainda usa ondas sonoras e binários para se comunicar. Adaptei minha linguagem para que consigamos conversar, primitivo que seja.",
     pitch: 0.8,
     rate: 0.9
   }
 ];
         let state = {
-            personas: JSON.parse(localStorage.getItem('voz_personas')) || DEFAULT_PERSONAS,
-            activePersonaId: localStorage.getItem('voz_active_persona_id') || 'alan-turing',
-            messages: JSON.parse(localStorage.getItem('voz_messages')) || {},
-            settings: JSON.parse(localStorage.getItem('voz_settings')) || {
-                apiKey: '',
-                model: 'gemini-2.5-flash',
-                voiceName: '',
-                speed: 1.0,
-                pitch: 1.0,
-                useContext: true,
-                maxContext: 10
-            }
-        };
-
+  personas: JSON.parse(localStorage.getItem('voz_personas')) || DEFAULT_PERSONAS,
+  activePersonaId: localStorage.getItem('voz_active_persona_id') || 'alan_turing',
+  messages: JSON.parse(localStorage.getItem('voz_messages')) || {},
+  settings: JSON.parse(localStorage.getItem('voz_settings')) || {
+    apiKey: '',
+    elevenApiKey: '',
+    model: 'gemini-2.5-flash',
+    voiceId: '', // ElevenLabs voice id (or "browser" for native)
+    speed: 1.0,
+    pitch: 1.0,
+    useContext: true,
+    maxContext: 10
+  }
+};
         let voices = [];
         let synth = window.speechSynthesis;
         let isSpeaking = false;
+        let elevenVoices = []; // holds ElevenLabs voices when available
 
         // --- DOM Elements ---
         const elements = {
@@ -362,6 +410,7 @@ const DEFAULT_PERSONAS = [
             modalSettings: document.getElementById('modalSettings'),
             btnOpenSettings: document.getElementById('btnOpenSettings'),
             inputApiKey: document.getElementById('inputApiKey'),
+            inputElevenApiKey: document.getElementById('inputElevenApiKey'),
             selectModel: document.getElementById('selectModel'),
             selectVoice: document.getElementById('selectVoice'),
             rangeSpeed: document.getElementById('rangeSpeed'),
@@ -425,64 +474,152 @@ const DEFAULT_PERSONAS = [
             return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         }
 
-        // --- Speech Synthesis Functions ---
-        function loadVoices() {
-            voices = synth.getVoices();
+        // --- Speech / ElevenLabs functions ---
+        async function loadVoices() {
             elements.selectVoice.innerHTML = '';
-            
-            // Prefer Portuguese voices first, then fallbacks
-            voices.sort((a, b) => {
-                const aPt = a.lang.startsWith('pt');
-                const bPt = b.lang.startsWith('pt');
-                if (aPt && !bPt) return -1;
-                if (!aPt && bPt) return 1;
-                return a.name.localeCompare(b.name);
-            });
-
-            voices.forEach((voice, index) => {
-                const option = document.createElement('option');
-                option.value = voice.name;
-                option.textContent = `${voice.name} (${voice.lang})`;
-                if (voice.name === state.settings.voiceName || (!state.settings.voiceName && index === 0)) {
-                    option.selected = true;
+            // If ElevenLabs API key is configured, load ElevenLabs voices
+            if (state.settings.elevenApiKey && state.settings.elevenApiKey.trim()) {
+                try {
+                    const res = await fetch('https://api.elevenlabs.io/v1/voices', {
+                        headers: { 'xi-api-key': state.settings.elevenApiKey.trim() }
+                    });
+                    const data = await res.json();
+                    elevenVoices = data.voices || [];
+                    // Populate select with eleven voices
+                    elevenVoices.forEach((v, i) => {
+                        const opt = document.createElement('option');
+                        opt.value = v.voice_id || v.id || v.name;
+                        opt.textContent = `${v.name}${v.preview_url ? ' (preview)' : ''}`;
+                        if (state.settings.voiceId && state.settings.voiceId === opt.value) opt.selected = true;
+                        elements.selectVoice.appendChild(opt);
+                    });
+                    // fallback if none found
+                    if (!elevenVoices.length) {
+                        elements.selectVoice.innerHTML = '<option value="browser">Voz do Navegador (padrão)</option>';
+                    }
+                } catch (err) {
+                    console.error('ElevenLabs voices error', err);
+                    elements.selectVoice.innerHTML = '<option value="browser">Voz do Navegador (padrão)</option>';
                 }
-                elements.selectVoice.appendChild(option);
-            });
+            } else {
+                // No ElevenLabs key: keep browser TTS as fallback option
+                elements.selectVoice.innerHTML = '<option value="browser">Voz do Navegador (padrão)</option>';
+            }
         }
+        
+        async function speakText(text) {
+            if (!text) return;
 
-        function speakText(text) {
-            if (!text || !('speechSynthesis' in window)) return;
+            elements.speakingBadge.classList.remove('hidden');
+            elements.statusText.textContent = "Falando...";
+            isSpeaking = true;
 
-            synth.cancel(); // Stop any current audio
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = parseFloat(state.settings.speed);
-            utterance.pitch = parseFloat(state.settings.pitch);
-
-            if (state.settings.voiceName) {
-                const selectedVoice = voices.find(v => v.name === state.settings.voiceName);
-                if (selectedVoice) utterance.voice = selectedVoice;
+            const useEleven = state.settings.elevenApiKey && state.settings.elevenApiKey.trim() && state.settings.voiceId && state.settings.voiceId !== 'browser';
+            if (!useEleven && 'speechSynthesis' in window) {
+                try {
+                    synth.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = parseFloat(state.settings.speed);
+                    utterance.pitch = parseFloat(state.settings.pitch);
+                    utterance.onend = () => {
+                        isSpeaking = false;
+                        elements.speakingBadge.classList.add('hidden');
+                        elements.statusText.textContent = "Aguardando sua próxima pergunta.";
+                    };
+                    utterance.onerror = () => {
+                        isSpeaking = false;
+                        elements.speakingBadge.classList.add('hidden');
+                        elements.statusText.textContent = "Aguardando sua próxima pergunta.";
+                    };
+                    synth.speak(utterance);
+                    return;
+                } catch (err) {
+                    console.error('Native TTS error', err);
+                }
             }
 
-            utterance.onstart = () => {
-                isSpeaking = true;
-                elements.speakingBadge.classList.remove('hidden');
-                elements.statusText.textContent = "Falando...";
-            };
-
-            utterance.onend = () => {
+            if (!useEleven) {
                 isSpeaking = false;
                 elements.speakingBadge.classList.add('hidden');
-                elements.statusText.textContent = "Aguardando sua próxima pergunta.";
-            };
+                elements.statusText.textContent = "TTS indisponível.";
+                return;
+            }
 
-            utterance.onerror = () => {
+            // ElevenLabs flow
+            const voiceId = state.settings.voiceId;
+            const key = state.settings.elevenApiKey.trim();
+            const endpoints = [
+                `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
+                `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`
+            ];
+
+            let played = false;
+            for (const url of endpoints) {
+                try {
+                    console.log('ElevenLabs TTS request ->', url);
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'audio/mpeg, audio/*;q=0.9, */*;q=0.1',
+                            'xi-api-key': key
+                        },
+                        body: JSON.stringify({
+                            text,
+                            voice_settings: { stability: 0.5, similarity_boost: 0.75 }
+                        })
+                    });
+
+                    // Log status and headers for debugging
+                    console.log('TTS status', res.status, res.statusText);
+                    const contentType = res.headers.get('content-type') || '';
+                    console.log('TTS content-type', contentType);
+
+                    // If API returned JSON (error), parse and throw to surface message
+                    if (contentType.includes('application/json')) {
+                        const json = await res.json().catch(() => ({}));
+                        console.error('ElevenLabs JSON response', json);
+                        throw new Error(json?.error || JSON.stringify(json));
+                    }
+
+                    if (!res.ok) {
+                        const txt = await res.text().catch(() => '');
+                        throw new Error(`HTTP ${res.status} - ${txt}`);
+                    }
+
+                    // read audio as arrayBuffer and play
+                    const ab = await res.arrayBuffer();
+                    const mime = contentType.split(';')[0] || 'audio/mpeg';
+                    const blob = new Blob([ab], { type: mime });
+                    const audioUrl = URL.createObjectURL(blob);
+                    const audio = new Audio(audioUrl);
+                    await audio.play().catch(e => { throw e; });
+                    audio.onended = () => {
+                        URL.revokeObjectURL(audioUrl);
+                        isSpeaking = false;
+                        elements.speakingBadge.classList.add('hidden');
+                        elements.statusText.textContent = "Aguardando sua próxima pergunta.";
+                    };
+                    audio.onerror = () => {
+                        URL.revokeObjectURL(audioUrl);
+                        isSpeaking = false;
+                        elements.speakingBadge.classList.add('hidden');
+                        elements.statusText.textContent = "Erro ao reproduzir áudio.";
+                    };
+
+                    played = true;
+                    break; // sucesso
+                } catch (err) {
+                    console.warn('ElevenLabs attempt failed for', url, err);
+                    // continue to next endpoint as fallback
+                }
+            }
+
+            if (!played) {
                 isSpeaking = false;
                 elements.speakingBadge.classList.add('hidden');
-                elements.statusText.textContent = "Aguardando sua próxima pergunta.";
-            };
-
-            synth.speak(utterance);
+                elements.statusText.textContent = "Erro ao gerar áudio ElevenLabs. Veja o Console/Network.";
+            }
         }
 
         // --- UI Rendering ---
@@ -580,7 +717,7 @@ const DEFAULT_PERSONAS = [
                     },
                     generationConfig: {
                         temperature: 0.7,
-                        maxOutputTokens: 250
+                        maxOutputTokens: 6000
                     }
                 };
 
@@ -667,6 +804,7 @@ const DEFAULT_PERSONAS = [
 
         function populateSettingsModal() {
             elements.inputApiKey.value = state.settings.apiKey;
+            elements.inputElevenApiKey.value = state.settings.elevenApiKey || '';
             elements.selectModel.value = state.settings.model;
             elements.rangeSpeed.value = state.settings.speed;
             elements.lblSpeed.textContent = state.settings.speed;
@@ -676,9 +814,9 @@ const DEFAULT_PERSONAS = [
             elements.rangeMaxContext.value = state.settings.maxContext;
             elements.lblMaxContext.textContent = state.settings.maxContext;
             
-            if (state.settings.voiceName) {
-                elements.selectVoice.value = state.settings.voiceName;
-            }
+            if (state.settings.voiceId) {
+                elements.selectVoice.value = state.settings.voiceId;
+             }
         }
 
         function populatePersonasModal() {
@@ -756,15 +894,19 @@ const DEFAULT_PERSONAS = [
             elements.rangeMaxContext.oninput = (e) => elements.lblMaxContext.textContent = e.target.value;
 
             // Save Settings
-            elements.btnSaveSettings.onclick = () => {
+            elements.btnSaveSettings.onclick = async () => {
                 state.settings.apiKey = elements.inputApiKey.value.trim();
+                state.settings.elevenApiKey = elements.inputElevenApiKey.value.trim();
                 state.settings.model = elements.selectModel.value;
-                state.settings.voiceName = elements.selectVoice.value;
+                state.settings.voiceId = elements.selectVoice.value;
                 state.settings.speed = elements.rangeSpeed.value;
                 state.settings.pitch = elements.rangePitch.value;
                 state.settings.useContext = elements.chkUseContext.checked;
                 state.settings.maxContext = parseInt(elements.rangeMaxContext.value, 10);
 
+                // try loading ElevenLabs voices immediately (if key changed)
+                await loadVoices();
+ 
                 saveState();
                 closeModal(elements.modalSettings);
                 elements.statusText.textContent = "Configurações salvas.";
